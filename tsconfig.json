@@ -8,6 +8,18 @@
     },
     {
       "path": "./apps/web"
+    },
+    {
+      "path": "./libs/sim"
+    },
+    {
+      "path": "./libs/types"
+    },
+    {
+      "path": "./libs/ui"
+    },
+    {
+      "path": "./libs/api-client"
     }
   ]
 }
