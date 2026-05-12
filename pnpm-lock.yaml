@@ -1,5 +1,8 @@
 lockfileVersion: '6.0'
 
+overrides:
+  '@asamuzakjp/css-color>lru-cache': ^10.4.3
+
 importers:
 
   .:

@@ -4,6 +4,11 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
+  "pnpm": {
+    "overrides": {
+      "@asamuzakjp/css-color>lru-cache": "^10.4.3"
+    }
+  },
   "dependencies": {
     "next": "~16.1.6",
     "react": "^19.0.0",

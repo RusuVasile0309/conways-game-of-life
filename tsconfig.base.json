@@ -17,6 +17,7 @@
     "strict": true,
     "target": "es2022",
     "customConditions": ["@temp-nx/source"],
+    "baseUrl": ".",
     "paths": {
       "@conways-game-of-life/sim": ["libs/sim/src/index.ts"],
       "@conways-game-of-life/types": ["libs/types/src/index.ts"],
