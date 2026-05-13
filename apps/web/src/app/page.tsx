@@ -124,7 +124,7 @@ export default function Page() {
               <div className="flex-1 flex justify-end">
                 <p className="text-sm text-neutral-600">
                   Generation:{' '}
-                  <span className="text-cyan-600 font-mono">{generation}</span>
+                  <span className="text-cyan-600 font-mono" data-testid="gen-count">{generation}</span>
                 </p>
               </div>
             </div>
