@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { createGrid, toggleCell, step } from '@conways-game-of-life/sim';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { createGrid, toggleCell, step, randomizeGrid } from '@conways-game-of-life/sim';
 import type { Grid } from '@conways-game-of-life/types';
 import { GameCanvas } from './components/GameCanvas';
 import { SizeForm } from './components/SizeForm';
@@ -30,7 +30,14 @@ export default function Page() {
 
   useSimulationLoop(isRunning, genPerSecRef, onTick);
 
+  useEffect(() => {
+    if (isRunning && !grid.cells.some(Boolean)) {
+      setIsRunning(false);
+    }
+  }, [grid, isRunning]);
+
   function handleResize(width: number, height: number) {
+    setIsRunning(false);
     setGrid(createGrid(width, height));
     setGeneration(0);
   }
@@ -45,10 +52,24 @@ export default function Page() {
     setGeneration((n) => n + 1);
   }
 
+  function handleClear() {
+    setIsRunning(false);
+    setGrid((g) => createGrid(g.width, g.height));
+    setGeneration(0);
+  }
+
+  function handleRandomize() {
+    setIsRunning(false);
+    setGrid((g) => randomizeGrid(g));
+    setGeneration(0);
+  }
+
   const btnBase =
-    'rounded p-2 border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
-  const btnPrimary = `${btnBase} bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700`;
-  const btnSecondary = `${btnBase} bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+    'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
+  const btnIcon = `${btnBase} w-9 h-9 flex items-center justify-center`;
+  const btnPrimary = `${btnIcon} bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondaryIcon = `${btnIcon} bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
 
   return (
     <main className="h-screen overflow-hidden flex flex-col">
@@ -56,20 +77,16 @@ export default function Page() {
         Conway&apos;s Game of Life
       </h1>
 
-      <div className="game-content flex-1 flex flex-col lg:flex-row items-start gap-6 overflow-hidden pb-6">
+      <div className="game-content flex-1 flex flex-col lg:flex-row items-center gap-6 overflow-hidden pb-6">
         <div className="game-canvas-wrap border-2 border-cyan-600 rounded-md overflow-hidden shrink-0">
           <GameCanvas grid={grid} isRunning={isRunning} onCellToggle={handleCellToggle} />
         </div>
 
-        <aside className="flex flex-col gap-6 w-full lg:flex-1">
-          <p className="text-sm text-neutral-600">
-            Generation:{' '}
-            <span className="text-cyan-600 font-mono">{generation}</span>
-          </p>
-
-          <div className="flex gap-2">
+        <aside className="flex flex-col gap-4 w-full lg:flex-1">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setIsRunning((r) => !r)}
+              disabled={!isRunning && !grid.cells.some(Boolean)}
               className={btnPrimary}
               aria-label={isRunning ? 'Pause simulation' : 'Play simulation'}
             >
@@ -84,13 +101,26 @@ export default function Page() {
             </button>
             <button
               onClick={handleStep}
-              disabled={isRunning}
-              className={btnSecondary}
+              disabled={isRunning || !grid.cells.some(Boolean)}
+              className={btnSecondaryIcon}
               aria-label="Step one generation"
             >
               <span className="text-cyan-600">
                 <ArrowRightIcon />
               </span>
+            </button>
+            <p className="text-sm text-neutral-600">
+              Generation:{' '}
+              <span className="text-cyan-600 font-mono">{generation}</span>
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <button onClick={handleClear} className={btnSecondary} aria-label="Clear grid">
+              Clear
+            </button>
+            <button onClick={handleRandomize} className={btnSecondary} aria-label="Randomize grid">
+              Randomize
             </button>
           </div>
 
