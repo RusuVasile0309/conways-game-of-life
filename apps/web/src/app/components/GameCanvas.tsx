@@ -66,15 +66,12 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
     const endRow = Math.min(g.height, Math.ceil(offsetY + H / scale));
 
     if (scale >= 4) {
-      // Grid boundary in screen coords — lines must not exceed this
       const gridLeft = Math.max(0, -offsetX * scale);
       const gridTop = Math.max(0, -offsetY * scale);
       const gridRight = Math.min(W, (g.width - offsetX) * scale);
       const gridBottom = Math.min(H, (g.height - offsetY) * scale);
-
-      const t = Math.max(0, Math.min(1, (scale - 10) / (30 - 10)));
       ctx.strokeStyle = GRID_COLOR;
-      ctx.lineWidth = 1 + t * 2;
+      ctx.lineWidth = 1;
       for (let col = startCol; col <= endCol; col++) {
         const x = Math.round((col - offsetX) * scale) + 0.5;
         ctx.beginPath();
