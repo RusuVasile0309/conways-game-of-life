@@ -13,7 +13,7 @@ describe('step — 3×3 all-alive (hand-computed reference)', () => {
     // PRD rule 3: dies with *more than* 3 neighbours.
     // Corners have exactly 3 → survive. Story 2.3 AC says corners die — this
     // contradicts PRD §Domain Rules and Conway's canonical definition.
-    let g = createGrid(3, 3);
+    const g = createGrid(3, 3);
     for (let i = 0; i < 9; i++) g.cells[i] = 1;
     const next = step(g);
 
