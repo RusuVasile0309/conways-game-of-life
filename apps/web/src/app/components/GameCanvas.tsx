@@ -319,6 +319,8 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
     <div ref={containerRef} className="w-full h-full  overflow-hidden">
       <canvas
         ref={canvasRef}
+        data-cols={grid.width}
+        data-rows={grid.height}
         className="block cursor-grab active:cursor-grabbing"
         style={{ imageRendering: 'pixelated' }}
         onMouseDown={onMouseDown}

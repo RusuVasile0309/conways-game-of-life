@@ -39,6 +39,31 @@ The spec lives at `apps/web-e2e/src/e2e/happy-path.spec.ts`. It navigates to `/`
 
 The original implementation existed only as a dangling commit (`8310e1b`) that was never pushed or merged. This story was re-implemented cleanly on `feat/4-1-playwright-happy-path-e2e-spec` and passed locally (`2 passed, 0 failed`) before the PR was opened.
 
+## Dev Agent Record
+
+### Tasks/Subtasks
+
+- [x] Add `data-testid="gen-count"` to generation counter span in `apps/web/src/app/page.tsx`
+- [x] Add `data-cols`/`data-rows` attributes to canvas in `apps/web/src/app/components/GameCanvas.tsx` (deterministic resize-wait hook)
+- [x] Create `apps/web-e2e/src/e2e/happy-path.spec.ts` (10×10, blinker, Play, `not.toHaveText('0')`)
+- [x] Verify `pnpm nx e2e web-e2e --project=chromium` passes locally
+
+### File List
+
+- `apps/web/src/app/page.tsx` — added `data-testid="gen-count"` to generation span
+- `apps/web/src/app/components/GameCanvas.tsx` — added `data-cols`/`data-rows` to `<canvas>`
+- `apps/web-e2e/src/e2e/happy-path.spec.ts` — new file: Playwright happy-path spec
+- `docs/implementation-artifacts/story-4-1-playwright-happy-path-e2e-spec.md` — this file
+- `docs/implementation-artifacts/sprint-status.yaml` — auto-updated by pre-commit hook
+
+### Change Log
+
+| Date | Commit | Summary |
+|---|---|---|
+| 2026-05-13 | a5b0f8a | feat(story4.1): Playwright happy-path E2E spec and gen-count testid |
+| 2026-05-13 | c7f14ad | docs(story4.1): mark story done and update implementation notes |
+| 2026-05-13 | *(post-review)* | fix(story4.1): replace waitForTimeout with data-cols/data-rows deterministic wait; add canvas data attributes |
+
 ## Deviations from Architecture
 
 None.
