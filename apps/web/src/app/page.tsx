@@ -28,19 +28,19 @@ export default function Page() {
 
   return (
     <main className="h-screen overflow-hidden flex flex-col">
-      <h1 className="game-title mt-6 mb-4 text-xl font-semibold tracking-tight text-cyan-400 shrink-0">
+      <h1 className="game-title mt-6 mb-4 text-xl font-semibold tracking-tight text-cyan-600 shrink-0">
         Conway&apos;s Game of Life
       </h1>
 
       <div className="game-content flex-1 flex flex-col lg:flex-row items-start gap-6 overflow-hidden pb-6">
-        <div className="game-canvas-wrap border-2 border-cyan-400 rounded-md overflow-hidden shrink-0">
+        <div className="game-canvas-wrap border-2 border-cyan-600 rounded-md overflow-hidden shrink-0">
           <GameCanvas grid={grid} isRunning={isRunning} onCellToggle={handleCellToggle} />
         </div>
 
         <aside className="flex flex-col gap-6 w-full lg:flex-1">
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-600">
             Generation:{' '}
-            <span className="text-cyan-400 font-mono">{generation}</span>
+            <span className="text-cyan-600 font-mono">{generation}</span>
           </p>
           <SizeForm
             currentWidth={grid.width}
