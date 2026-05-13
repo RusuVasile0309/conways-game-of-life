@@ -33,16 +33,11 @@ So that I can verify end-to-end that the app actually works without running it m
 
 ## Implementation Notes
 
-The spec was written in `apps/web-e2e/src/e2e/happy-path.spec.ts`. It navigates to `/`, resizes the canvas to 10×10, clicks three adjacent cells to form a blinker, clicks Play, and uses `expect.poll` to wait until `data-testid="gen-count"` shows a value `>= 1`. No hard-coded sleeps or exact counter assertions.
+The spec lives at `apps/web-e2e/src/e2e/happy-path.spec.ts`. It navigates to `/`, resizes the grid to 10×10 via the size form labels, waits 300 ms for React to flush the resize, paints a horizontal blinker at cells (4,5)–(6,5) using the canvas bounding box and `SCALE_DESKTOP = 30px`, clicks the "Play simulation" button, and asserts that `data-testid="gen-count"` stops showing `'0'` within a 5 000 ms polling window (`not.toHaveText('0', { timeout: 5000 })`). No hard-coded sleep for frame counting; no exact-counter assertions.
 
-A `data-testid="gen-count"` attribute was added to the generation counter span in `page.tsx` as part of this story (`8310e1b`).
+`data-testid="gen-count"` was added to the generation counter `<span>` in `apps/web/src/app/page.tsx`.
 
-After the initial commit, CI revealed three additional failures that required a fix commit (`1ddb221`):
-1. The Nx-generated `example.spec.ts` was navigating to a path that didn't exist — it was updated to navigate to `/`.
-2. `useSimulationLoop.spec.ts` needed a `jest.setup.ts` adding `@testing-library/jest-dom` matchers, which was missing from `apps/web/jest.config.cts`.
-3. The spec assertions were adjusted to use the correct Playwright `expect.poll` polling window.
-
-Delivered in commits `8310e1b` and `1ddb221`.
+The original implementation existed only as a dangling commit (`8310e1b`) that was never pushed or merged. This story was re-implemented cleanly on `feat/4-1-playwright-happy-path-e2e-spec` and passed locally (`2 passed, 0 failed`) before the PR was opened.
 
 ## Deviations from Architecture
 
@@ -50,4 +45,4 @@ None.
 
 ## AI Usage
 
-AI wrote the initial happy-path spec. The three CI failures (`1ddb221`) were diagnosed by reading the raw CI log rather than guessing from warnings — an example of directing AI to the root cause rather than letting it fix symptoms.
+AI recovered the spec content from the dangling commit and verified it against the current codebase (button aria-labels, scale constants, SizeForm label structure) before writing the file. The `keyboard.spec.ts` file from in-progress story 4.2 was present in the working tree and was removed from this branch to keep the 4-1 PR focused.
