@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json\ntry:\n    d = json.load(sys.stdin)\n    cmd = d.get('command', '')\n    if 'git commit' in cmd:\n        print('''\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  BMAD pre-commit checklist  (full guide: WORKFLOW.md)\n\n  AUTO  sprint-status.yaml syncs automatically\n  AUTO  commit-msg hook validates format\n\n  YOU   Commit message format:\n          type(storyX.X): one-sentence description\n          e.g. feat(story4.3): add 375px viewport spec\n\n  YOU   Tests included in this commit? (no deferring)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n''')\n    elif 'git push' in cmd:\n        print('''\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  BMAD pre-push checklist  (full guide: WORKFLOW.md)\n\n  [ ] /bmad-bmm-code-review run and issues fixed?\n  [ ] Story file exists in docs/implementation-artifacts/?\n  [ ] PR title:  Story X.Y: capability summary (FRN)\n  [ ] PR body:  deviations documented? checklist ticked?\n  [ ] Epic finished? Run /bmad-bmm-retrospective first\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n''')\nexcept:\n    pass\n\""
+          }
+        ]
+      }
+    ]
+  }
+}

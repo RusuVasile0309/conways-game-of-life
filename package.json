@@ -2,7 +2,11 @@
   "name": "@temp-nx/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "sync-sprint": "node scripts/sync-sprint-status.mjs",
+    "create-story": "node scripts/create-story-file.mjs",
+    "setup-hooks": "node scripts/setup-git-hooks.mjs"
+  },
   "private": true,
   "pnpm": {
     "overrides": {
