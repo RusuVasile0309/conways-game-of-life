@@ -1,5 +1,5 @@
 import type { Grid } from '@conways-game-of-life/types';
-import { cloneGrid } from './grid.js';
+import { cloneGrid } from './grid';
 
 export function mulberry32(seed: number): () => number {
   let s = seed;
