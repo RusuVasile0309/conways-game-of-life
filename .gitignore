@@ -7,4 +7,16 @@ node_modules/
 # Claude Code local settings (per-user; references absolute paths)
 .claude/settings.local.json
 
-test-output
+# Build outputs
+dist/
+out-tsc/
+.next/
+test-output/
+
+# Nx cache and local databases
+.nx/cache/
+.nx/workspace-data/*.db
+.nx/workspace-data/*.db-shm
+.nx/workspace-data/*.db-wal
+.nx/workspace-data/*.lock
+.nx/workspace-data/d/
