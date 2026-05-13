@@ -8,7 +8,7 @@ describe('useSimulationLoop', () => {
     jest.spyOn(window, 'requestAnimationFrame').mockReturnValue(1);
     cancelSpy = jest
       .spyOn(window, 'cancelAnimationFrame')
-      .mockImplementation(() => {});
+      .mockReturnValue();
   });
 
   afterEach(() => {
@@ -16,7 +16,7 @@ describe('useSimulationLoop', () => {
   });
 
   it('does not re-run the rAF loop when genPerSecRef.current changes mid-run', () => {
-    const genPerSecRef = { current: 10 } as React.MutableRefObject<number>;
+    const genPerSecRef = { current: 10 } as React.RefObject<number>;
     const onTick = jest.fn();
 
     const { rerender } = renderHook(
