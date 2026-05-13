@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createGrid } from '@conways-game-of-life/sim';
+import { createGrid, toggleCell } from '@conways-game-of-life/sim';
 import type { Grid } from '@conways-game-of-life/types';
 import { GameCanvas } from './components/GameCanvas';
 import { SizeForm } from './components/SizeForm';
@@ -15,10 +15,15 @@ export default function Page() {
     createGrid(DEFAULT_WIDTH, DEFAULT_HEIGHT),
   );
   const [generation, setGeneration] = useState(0);
+  const [isRunning, _setIsRunning] = useState(false);
 
   function handleResize(width: number, height: number) {
     setGrid(createGrid(width, height));
     setGeneration(0);
+  }
+
+  function handleCellToggle(col: number, row: number) {
+    setGrid((g) => toggleCell(g, col, row));
   }
 
   return (
@@ -28,9 +33,8 @@ export default function Page() {
       </h1>
 
       <div className="game-content flex-1 flex flex-col lg:flex-row items-start gap-6 overflow-hidden pb-6">
-
-        <div className="game-canvas-wrap border border-neutral-600 rounded-md overflow-hidden shrink-0">
-          <GameCanvas grid={grid} />
+        <div className="game-canvas-wrap border-2 border-cyan-400 rounded-md overflow-hidden shrink-0">
+          <GameCanvas grid={grid} isRunning={isRunning} onCellToggle={handleCellToggle} />
         </div>
 
         <aside className="flex flex-col gap-6 w-full lg:flex-1">

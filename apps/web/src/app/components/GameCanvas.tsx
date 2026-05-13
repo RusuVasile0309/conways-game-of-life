@@ -19,9 +19,11 @@ interface Camera {
 
 interface Props {
   grid: Grid;
+  isRunning: boolean;
+  onCellToggle: (col: number, row: number) => void;
 }
 
-export function GameCanvas({ grid }: Props) {
+export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cameraRef = useRef<Camera>({
@@ -35,9 +37,14 @@ export function GameCanvas({ grid }: Props) {
     startY: number;
     ox: number;
     oy: number;
+    moved: boolean;
   } | null>(null);
+  const isRunningRef = useRef(isRunning);
+  const onCellToggleRef = useRef(onCellToggle);
 
   gridRef.current = grid;
+  isRunningRef.current = isRunning;
+  onCellToggleRef.current = onCellToggle;
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -169,10 +176,16 @@ export function GameCanvas({ grid }: Props) {
     if (!canvas) return;
 
     let lastTouches: React.Touch[] | Touch[] = [];
+    let tapStart: { x: number; y: number } | null = null;
 
     const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
       lastTouches = Array.from(e.touches);
+      if (e.touches.length === 1) {
+        tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else {
+        tapStart = null;
+      }
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -219,6 +232,30 @@ export function GameCanvas({ grid }: Props) {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (
+        tapStart &&
+        e.changedTouches.length === 1 &&
+        e.touches.length === 0 &&
+        !isRunningRef.current
+      ) {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - tapStart.x;
+        const dy = t.clientY - tapStart.y;
+        if (Math.abs(dx) + Math.abs(dy) < 5) {
+          const canvas = canvasRef.current;
+          if (canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const { offsetX, offsetY, scale } = cameraRef.current;
+            const col = Math.floor((t.clientX - rect.left) / scale + offsetX);
+            const row = Math.floor((t.clientY - rect.top) / scale + offsetY);
+            const g = gridRef.current;
+            if (col >= 0 && col < g.width && row >= 0 && row < g.height) {
+              onCellToggleRef.current(col, row);
+            }
+          }
+        }
+      }
+      tapStart = null;
       lastTouches = Array.from(e.touches);
     };
 
@@ -238,22 +275,46 @@ export function GameCanvas({ grid }: Props) {
       startY: e.clientY,
       ox: cameraRef.current.offsetX,
       oy: cameraRef.current.offsetY,
+      moved: false,
     };
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
     if (!dragRef.current) return;
     const { startX, startY, ox, oy } = dragRef.current;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (!dragRef.current.moved && Math.abs(dx) + Math.abs(dy) > 3) {
+      dragRef.current.moved = true;
+    }
     const scale = cameraRef.current.scale;
     cameraRef.current = {
       ...cameraRef.current,
-      offsetX: ox - (e.clientX - startX) / scale,
-      offsetY: oy - (e.clientY - startY) / scale,
+      offsetX: ox - dx / scale,
+      offsetY: oy - dy / scale,
     };
     draw();
   };
 
-  const stopDrag = () => {
+  const stopDrag = (e: React.MouseEvent) => {
+    const drag = dragRef.current;
+    if (drag && !drag.moved && !isRunningRef.current) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const { offsetX, offsetY, scale } = cameraRef.current;
+        const col = Math.floor((e.clientX - rect.left) / scale + offsetX);
+        const row = Math.floor((e.clientY - rect.top) / scale + offsetY);
+        const g = gridRef.current;
+        if (col >= 0 && col < g.width && row >= 0 && row < g.height) {
+          onCellToggleRef.current(col, row);
+        }
+      }
+    }
+    dragRef.current = null;
+  };
+
+  const cancelDrag = () => {
     dragRef.current = null;
   };
 
@@ -266,7 +327,7 @@ export function GameCanvas({ grid }: Props) {
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}
-        onMouseLeave={stopDrag}
+        onMouseLeave={cancelDrag}
       />
     </div>
   );
