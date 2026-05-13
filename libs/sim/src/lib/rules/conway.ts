@@ -1,5 +1,5 @@
 import type { Grid } from '@conways-game-of-life/types';
-import { createGrid, getCell } from '../grid.js';
+import { createGrid, getCell } from '../grid';
 
 export function step(grid: Grid): Grid {
   const next = createGrid(grid.width, grid.height);
