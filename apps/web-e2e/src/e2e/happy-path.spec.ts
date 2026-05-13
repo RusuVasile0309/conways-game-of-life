@@ -18,7 +18,8 @@ test('set 10×10 grid, paint blinker, play, generation advances', async ({ page 
   // Locate the canvas
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible();
-  const box = (await canvas.boundingBox())!; // non-null: toBeVisible() asserted above
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Canvas bounding box not found');
 
   // Paint a horizontal blinker: cells (4,5), (5,5), (6,5).
   // Row 5 keeps all 8 neighbours inside the 10×10 grid (minimum 1-cell margin from every edge).
