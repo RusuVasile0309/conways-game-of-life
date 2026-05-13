@@ -9,6 +9,8 @@ import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { PlayIcon } from './svgs/Play';
 import { PauseIcon } from './svgs/Pause';
 import { ArrowRightIcon } from './svgs/ArrowRight';
+import { TurtleIcon } from './svgs/Turtle';
+import { RabbitIcon } from './svgs/Rabbit';
 import './game.css';
 
 const DEFAULT_WIDTH = 40;
@@ -21,7 +23,13 @@ export default function Page() {
   );
   const [generation, setGeneration] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [genPerSec, setGenPerSec] = useState(DEFAULT_GEN_PER_SEC);
   const genPerSecRef = useRef(DEFAULT_GEN_PER_SEC);
+
+  function handleSpeedChange(value: number) {
+    genPerSecRef.current = value;
+    setGenPerSec(value);
+  }
 
   const onTick = useCallback(() => {
     setGrid((g) => step(g));
@@ -68,7 +76,7 @@ export default function Page() {
     'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
   const btnIcon = `${btnBase} w-9 h-9 flex items-center justify-center`;
   const btnPrimary = `${btnIcon} bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 disabled:opacity-40 disabled:cursor-not-allowed`;
-  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 text-cyan-600 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
   const btnSecondaryIcon = `${btnIcon} bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
 
   return (
@@ -83,39 +91,60 @@ export default function Page() {
         </div>
 
         <aside className="flex flex-col gap-4 w-full lg:flex-1">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsRunning((r) => !r)}
-              disabled={!isRunning && !grid.cells.some(Boolean)}
-              className={btnPrimary}
-              aria-label={isRunning ? 'Pause simulation' : 'Play simulation'}
-            >
-              <span style={{ display: 'block', position: 'relative', width: 20, height: 20 }}>
-                <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 0 : 1, transition: 'opacity 150ms ease' }}>
-                  <PlayIcon />
-                </span>
-                <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 1 : 0, transition: 'opacity 150ms ease' }}>
-                  <PauseIcon />
-                </span>
-              </span>
-            </button>
-            <button
-              onClick={handleStep}
-              disabled={isRunning || !grid.cells.some(Boolean)}
-              className={btnSecondaryIcon}
-              aria-label="Step one generation"
-            >
-              <span className="text-cyan-600">
-                <ArrowRightIcon />
-              </span>
-            </button>
-            <p className="text-sm text-neutral-600">
-              Generation:{' '}
-              <span className="text-cyan-600 font-mono">{generation}</span>
-            </p>
+          <div className="flex flex-col items-center gap-3 w-full">
+            <div className="flex items-center w-full">
+              <div className="flex-1" />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsRunning((r) => !r)}
+                  disabled={!isRunning && !grid.cells.some(Boolean)}
+                  className={btnPrimary}
+                  aria-label={isRunning ? 'Pause simulation' : 'Play simulation'}
+                >
+                  <span style={{ display: 'block', position: 'relative', width: 20, height: 20 }}>
+                    <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 0 : 1, transition: 'opacity 150ms ease' }}>
+                      <PlayIcon />
+                    </span>
+                    <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 1 : 0, transition: 'opacity 150ms ease' }}>
+                      <PauseIcon />
+                    </span>
+                  </span>
+                </button>
+                <button
+                  onClick={handleStep}
+                  disabled={isRunning || !grid.cells.some(Boolean)}
+                  className={btnSecondaryIcon}
+                  aria-label="Step one generation"
+                >
+                  <span className="text-cyan-600">
+                    <ArrowRightIcon />
+                  </span>
+                </button>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <p className="text-sm text-neutral-600">
+                  Generation:{' '}
+                  <span className="text-cyan-600 font-mono">{generation}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full">
+              <span className="text-neutral-400"><TurtleIcon /></span>
+              <input
+                type="range"
+                min={1}
+                max={60}
+                value={genPerSec}
+                onChange={(e) => handleSpeedChange(Number(e.target.value))}
+                className="flex-1 accent-cyan-600 speed-slider"
+                aria-label="Generations per second"
+              />
+              <span className="text-neutral-400"><RabbitIcon /></span>
+            </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-center">
             <button onClick={handleClear} className={btnSecondary} aria-label="Clear grid">
               Clear
             </button>
