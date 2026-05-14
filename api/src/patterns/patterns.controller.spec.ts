@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { PatternsController } from './patterns.controller.js';
-import { InMemoryPatternRepository } from './in-memory.repository.js';
-import type { SavedPattern } from '@conways-game-of-life/types';
+import { PATTERN_REPOSITORY } from './pattern-repository.token.js';
+import type { PatternRepository, SavedPattern } from '@conways-game-of-life/types';
 
 const mockPattern: SavedPattern = {
   id: 'abc-123',
@@ -15,14 +15,14 @@ const mockPattern: SavedPattern = {
 
 describe('PatternsController', () => {
   let controller: PatternsController;
-  let repo: jest.Mocked<InMemoryPatternRepository>;
+  let repo: jest.Mocked<PatternRepository>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       controllers: [PatternsController],
       providers: [
         {
-          provide: InMemoryPatternRepository,
+          provide: PATTERN_REPOSITORY,
           useValue: {
             list: jest.fn(),
             get: jest.fn(),
@@ -33,7 +33,7 @@ describe('PatternsController', () => {
     }).compile();
 
     controller = module.get(PatternsController);
-    repo = module.get(InMemoryPatternRepository);
+    repo = module.get<jest.Mocked<PatternRepository>>(PATTERN_REPOSITORY);
   });
 
   describe('list()', () => {
