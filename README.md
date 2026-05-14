@@ -1,178 +1,142 @@
-# Conway's Game of Life — Frontend Take-Home
+# Conway's Game of Life
 
-You are a senior frontend engineer. This is a take-home with an unusual shape: **the planning is already done**. The product brief, PRD, architecture, and epic breakdown all live in this repository. Your job is to **execute** against them with discipline, leave a clean trail, and ship.
+A browser-based implementation of Conway's Game of Life, built as a take-home engineering exercise. This document explains architectural decisions, trade-offs, how AI was used, and what comes next.
 
-This mirrors how delivery actually works at Design Pickle. You walk into a project with context already established, you read it, you ask the right questions, you make focused PRs, and the planning artifacts tell you what "done" looks like.
+---
 
-We respect concise. We would rather see four things done well than ten things half-built.
+## Quick start
 
-## Contents
+```bash
+# clone and install
+git clone <repo-url>
+cd conways-game-of-life
+pnpm install
+pnpm exec playwright install --with-deps   # first clone only
 
-- [Submission](#submission)
-- [What's already in this repo](#whats-already-in-this-repo)
-- [Getting started](#getting-started)
-- [How to execute](#how-to-execute)
-- [Required deliverables](#required-deliverables)
-- [Evaluation criteria](#evaluation-criteria)
-- [Things to avoid](#things-to-avoid)
-- [Stretch goals — entirely optional](#stretch-goals--entirely-optional)
-- [Questions](#questions)
-- [Confidentiality and ownership](#confidentiality-and-ownership)
+# run the app
+pnpm nx serve web                           # → http://localhost:4200
 
-## Submission
+# run tests
+pnpm nx test sim                            # Jest unit tests (pure sim core)
+pnpm nx e2e web-e2e                         # Playwright E2E
+pnpm nx lint web                            # ESLint + boundary check
+```
 
-- **Fork this repository** to your own GitHub account. Do all work on your fork. We review your fork.
-- **Deadline: 7 calendar days** from when you received this brief.
-- **All communication routes through Interviewer.** Send questions, status, and your final submission to him. We respond within one business day.
+See [START_HERE.md](START_HERE.md) for the interviewer quick-reference.
 
-Final submission is one message to Interviewer containing:
+---
 
-- The URL of your fork
-- The URL of your Loom walkthrough
-- A deployed URL if you hosted the app (welcome but not required)
+## Architecture
 
-## What's already in this repo
+Full detail lives in [docs/planning-artifacts/architecture.md](docs/planning-artifacts/architecture.md). The short version:
 
-| Path | Purpose |
-| --- | --- |
-| `docs/planning-artifacts/product-brief.md` | Vision, target users, strategic posture |
-| `docs/planning-artifacts/prd.md` | Functional and non-functional requirements with IDs |
-| `docs/planning-artifacts/architecture.md` | Locked technology decisions, module boundaries, default values |
-| `docs/project-context.md` | 20 numbered implementation rules for AI agents working in this repo |
-| `docs/planning-artifacts/epics.md` | 8 epics, 24 PR-sized stories, MVP and stretch tiers |
-| `docs/implementation-artifacts/sprint-status.yaml` | Story tracker — you keep it current |
-| `docs/implementation-artifacts/ai-usage.md` | Template for your AI usage report |
-| `.github/PULL_REQUEST_TEMPLATE.md` | PR template enforcing story link, deviation callout, self-review |
-| `_bmad/` | BMAD Method installation (workflows, agents, slash commands) |
-| `.claude/`, `.cursor/`, `.opencode/` | AI agent configurations mirrored across editors |
+```
+conways-game-of-life/
+├── apps/
+│   ├── web/          Next.js 14 (App Router) — UI, canvas, controls
+│   └── web-e2e/      Playwright E2E specs
+└── libs/
+    ├── sim/          Pure Conway rules engine — zero React/DOM/network
+    ├── types/        Shared TypeScript types (Grid, Cell, etc.)
+    ├── ui/           Shared UI components (stub, ready for stretch)
+    └── api-client/   Typed NestJS client (stub, ready for stretch)
+```
 
-The `_bmad/`, `.claude/`, `.cursor/`, and `.opencode/` directories are evaluation artifacts. **Do not delete them. Do not gitignore them.** They are how we evaluate your AI fluency.
+The key boundary: `libs/sim` contains only pure functions. It cannot import React, DOM APIs, or anything from `apps/`. This is enforced by `@nx/enforce-module-boundaries` — a lint violation fails CI, not just a convention. The canvas rendering and the `requestAnimationFrame` accumulator loop live in `apps/web`, which imports `step()` and `randomize()` from `libs/sim`.
 
-## Getting started
+The rAF accumulator pattern (PR #7) is what allows the speed slider to take effect mid-run without restarting the loop. Rather than `setInterval`, every animation frame accumulates elapsed time against a per-second budget, then calls `step()` as many times as the budget allows. Changing the speed slider updates the budget; the loop never stops.
 
-Three steps:
+---
 
-1. **Fork** this repository to your GitHub account.
-2. **Read the planning artifacts in this order:**
-    1. [Product Brief](docs/planning-artifacts/product-brief.md) — why we are building this
-    2. [PRD](docs/planning-artifacts/prd.md) — what good looks like, FR and NFR by ID
-    3. [Architecture](docs/planning-artifacts/architecture.md) — locked tech decisions
-    4. [Project Context](docs/project-context.md) — read this carefully; it is the operational rulebook for AI agents in this repo
-    5. [Epics and Stories](docs/planning-artifacts/epics.md) — implementation sequence
-    6. [Sprint Status](docs/implementation-artifacts/sprint-status.yaml) — current state of every story
-3. **Open a BMAD agent** in your editor. The repo has BMAD installed for Claude Code, Cursor, and opencode. When unsure what to do next, run `/bmad-bmm-sprint-status` or ask `/bmad-agent-bmad-master`.
+## Module boundaries
 
-You will write `START_HERE.md` at the repo root as one of your deliverables. That document is the interviewer's setup guide for *your* finished project. See the [Required deliverables](#required-deliverables) section.
+The Nx tag taxonomy:
 
-## How to execute
+| Project | Tag | Can depend on |
+|---------|-----|---------------|
+| `apps/web` | `scope:app` | `scope:sim`, `scope:ui`, `scope:api-client`, `scope:types` |
+| `apps/web-e2e` | `scope:e2e` | `scope:app`, `scope:types` |
+| `libs/sim` | `scope:sim` | `scope:types` only |
+| `libs/types` | `scope:types` | (leaf) |
+| `libs/ui` | `scope:ui` | `scope:types` |
+| `libs/api-client` | `scope:api-client` | `scope:types` |
 
-This repository has the **BMAD Method** installed. Use it. BMAD workflow precision is the top evaluation criterion.
+The enforcement is real, not aspirational. PR #2 (`feat/1-2-module-boundaries`) added the ESLint rule and a deliberate violation to prove it fires. The violation output is captured in [docs/implementation-artifacts/nfr8-boundary-violation-demo.md](docs/implementation-artifacts/nfr8-boundary-violation-demo.md).
 
-The expected loop, per story:
+---
 
-1. Pick the next story from `docs/implementation-artifacts/sprint-status.yaml`.
-2. Run `/bmad-bmm-create-story` (or `/bmad-bmm-quick-dev` for shorter stories) to draft the story file under `docs/implementation-artifacts/`.
-3. Implement on a feature branch named after the story key, for example `story/3-5-speed-slider`.
-4. Land it as a single PR into `main` on your fork. CI runs lint, typecheck, Jest, and Playwright on every PR — you author this workflow as a deliverable.
-5. Update `sprint-status.yaml` so the story moves to `done`.
-6. Repeat.
+## Trade-offs and deliberate skips
 
-Hard rules from the planning artifacts that bear repeating here:
+**No NestJS backend shipped.** The architecture document describes it in detail (epics 7–8) and `libs/api-client` is stubbed and tagged correctly. It's not scope creep to add it — it's one clear epic — but adding a backend that the canvas doesn't yet need felt like complexity without signal in the MVP window.
 
-- **First commit is raw `nx` scaffolding output, untouched.** No edits mixed in. This is how we read what you authored versus what the tool generated.
-- **One story = one branch = one PR.** Each commit summarizable in one sentence.
-- **No direct pushes to `main`.** Configure branch protection on your fork.
-- **Tests land in the same PR as the code they test.** Tests bulk-added at the end to chase coverage are a fail signal, not neutral.
+**No Web Worker or OffscreenCanvas.** The rAF accumulator on the main thread handles 50×50 at 30 gen/sec comfortably (NFR4 satisfied). Moving `step()` into a worker (epic 6) is the right next step, but it's a Transferable + SharedArrayBuffer story that deserves its own PR, not a rushed addition.
 
-If you deviate from `docs/planning-artifacts/architecture.md` or `docs/project-context.md` — and you may — document the deviation in the relevant PR description and call it out at presentation. Undocumented deviations read as accidents. Documented deviations read as judgment.
+**No pattern library.** Patterns (glider, Gosper gun, blinker) would live in `libs/sim` as typed exports (epic 5). The sim library is already shaped to receive them — `placePattern(grid, pattern, origin)` is a natural pure function there.
 
-When you finish the work, run `/bmad-bmm-retrospective` to generate the retrospective. We read it.
+**Grid is fixed at load time.** The size form runs on first load; there's no mid-run resize. This was a deliberate simplicity call. Resize would require invalidating the current grid and resetting the counter, which is easy but adds a state transition that needs its own tests.
 
-## Required deliverables
+---
 
-1. **Working application on your fork.** Functional MVP per epics 1–4 in `docs/planning-artifacts/epics.md`.
-2. **`START_HERE.md` at the repo root.** The interviewer-facing setup guide for your finished project. Tells the interviewer how to clone, install, and run the app from a fresh machine. Ideally one command from clone to running app. If you deployed the app, link it here.
-3. **GitHub Actions CI workflow.** Lint, typecheck, Jest, and Playwright on every PR into `main`. Failing checks block merge. You author this — it is part of the evaluation.
-4. **Tests.** Unit tests for the simulation core in `libs/sim` covering Conway's four rules, edge cases, and canonical patterns (block, blinker, glider). At least one Playwright E2E covering the happy path: set canvas size, paint cells, play, assert advance. Coverage target is your call; justify it in the PR that establishes it.
-5. **AI artifacts kept.** `.claude/`, `.cursor/`, `.opencode/`, and `_bmad/` remain in the repo across the entire build. Substantive use, not throwaway boilerplate. If you used AI without leaving a trace, we lose the ability to evaluate that part of your work. **No traces, no signal.**
-6. **`docs/implementation-artifacts/ai-usage.md` filled in.** A template ships in this repo. Fill in each section honestly. The "Three times AI was wrong, and what you did" section is the most signal-rich.
-7. **`docs/implementation-artifacts/sprint-status.yaml` reflecting truth.** As stories move from `backlog` to `ready-for-dev` to `in-progress` to `review` to `done`, you update this file.
-8. **A 5-minute Loom (or equivalent) walkthrough.** Architecture overview, one or two trade-offs, a piece of AI-assisted work you are proud of, a piece you pushed back on, and one BMAD workflow you used and what it bought you. Keep it tight.
+## AI usage
 
-## Evaluation criteria
+I used Claude Code (with BMAD workflow commands, on epic 4) throughout. The methodology: plan with BMAD story files, implement with `/bmad-bmm-dev-story`, then run `/bmad-bmm-code-review` on each PR before merge.
 
-In priority order:
+**AI was roughly 80% accurate.** Frontend knowledge was necessary to catch the remaining 20%. AI would generate code that looked right but had subtle issues how React state interacted with canvas refs, or how CSS cascade worked across breakpoints. The AI sometimes entered very long thinking loops when trying to solve errors that it signaled.
 
-### 1. BMAD workflow precision (top weight)
+**My biggest input was Epic 3.** I had to explain how the UI should look and how it should work — the grid rendering, the button layout, the play/pause state machine. AI could scaffold the structure but the product decisions were mine.
 
-We evaluate your process via BMAD artifacts:
+**AI adherence to docs hovered around 50–60% for the first three epics.** There were no BMAD story files for epics 1–3 by default, so AI was working from the epic description and my verbal direction. Starting from epic 4, constant reminders and the create-story workflow dramatically improved adherence. The quality gap between "AI working from an epic description" and "AI working from a story file with explicit ACs" was large and visible. My only observation here is that it took more time to work while following the BMAD procedures.
 
-- `sprint-status.yaml` is current and reflects reality.
-- Story files in `docs/implementation-artifacts/` exist for the stories you implemented.
-- A retrospective generated via `/bmad-bmm-retrospective` is committed.
-- Stories were implemented in the sequence defined by the epic breakdown.
-- When stuck, you used `/bmad-agent-bmad-master` rather than guessing.
+**A concrete AI miss:** In story 4.3 (responsive verification), AI added `@media (max-height: 667px)` to shrink the canvas on short-height screens. The rule was correct for mobile but had no width constraint, so it would also fire on a desktop with DevTools open (e.g. 1280×640). Code review caught it and we added `and (max-width: 1023px)` to scope it correctly.
 
-We will run `/bmad-bmm-code-review` and `/bmad-bmm-check-implementation-readiness` against your submission as part of the review.
+**A concrete AI hit:** The pure Conway rules engine in Epic 2. Deterministic, framework-free domain → predictable AI output. The four rule implementations were accurate and the test scaffolding was solid. I reviewed and accepted with one correction to the underpopulation threshold.
 
-### 2. Git and CI hygiene
+**AI artifact directories** — `.claude/`, `.cursor/`, `.opencode/`, and `_bmad/` — are all committed and substantive. The BMAD workflow commands live in `.claude/commands/` and are what drove the structured planning-to-implementation loop. They are not throwaway scaffolding.
 
-- First commit is raw Nx scaffolding output.
-- Each commit summarizable in one sentence.
-- Each story ships in a single focused PR.
-- All four CI checks (lint, typecheck, Jest, Playwright) green at merge.
-- Branch protection enabled on your fork's `main`.
-- PRs use the template in `.github/PULL_REQUEST_TEMPLATE.md`.
+---
 
-### 3. AI fluency via the AI usage report
+## What's next with another 8 hours
 
-We read `docs/implementation-artifacts/ai-usage.md` carefully. The most signal-rich section is the one where you describe AI output you rejected or corrected and what you did instead. Anyone can copy AI output; engineers we want to hire can recognize when it is wrong.
+1. **Pattern library (epic 5):** Glider, blinker, and Gosper gun as typed data exports in `libs/sim`. A small selector dropdown in the UI calls `placePattern()`. Two stories, two PRs.
 
-### Also weighted
+2. **Web Worker (epic 6):** Move `step()` off the main thread via a dedicated worker with `Transferable` grid buffers. Add OffscreenCanvas for zero-jank rendering. This clears NFR5 (200×200 at 60fps). The rAF accumulator already isolates the render/tick boundary, so the refactor is cleaner than it looks.
 
-- **Frontend craft.** Component boundaries, state management, render performance, responsive behavior.
-- **Code quality and modularity.** Module boundaries that CI actually enforces, simulation core in a shared library.
-- **Test signal.** Tests that constrain behavior, not pad coverage.
-- **Judgment.** What you chose to build, what you chose to skip, how clearly you explain why.
-- **Communication.** PR descriptions, retrospective, and Loom.
+3. **NestJS API (epic 7):** `apps/api` with an in-memory pattern repository, a typed `libs/api-client`, and save/load endpoints. SQLite via Prisma as a follow-up story — the architecture documents the `PatternRepository` interface that makes the swap mechanical.
 
-### Architecture deviations
+4. **Pluggable rule engine (epic 8):** `RuleSet` interface in `libs/sim`, HighLife implementation alongside Conway, preset dropdown in the UI.
 
-You may deviate from `docs/planning-artifacts/architecture.md` or `docs/project-context.md`. We expect senior engineers to spot things and propose better solutions. Two requirements when you deviate:
+---
 
-1. **Document the deviation in the PR description** at the time you make it.
-2. **Call it out during the Loom walkthrough** when presenting your finished work.
+## What I'm not happy with
 
-Undocumented deviations read as accidents. Documented deviations read as judgment.
+**The grid size form runs once and that's it.** There's no mid-run resize. It works, but a more polished experience would let you change grid dimensions at any time and reset cleanly.
 
-## Things to avoid
+**The speed slider has no numeric label.** The slider range is 1–30 gen/sec but the UI doesn't show the current value. A visible number next to the thumb would be a 20-minute addition and would make the control self-explanatory without the accessible name.
 
-Direct, so you do not waste time on the wrong things:
+**`ai-usage.md` and this README overlap.** The `docs/implementation-artifacts/ai-usage.md` artifact started as a separate detailed log, but its most important content ended up here. Ideally there would be one source of truth for AI reflections, not two.
 
-- **Tests added in the last hour to hit a coverage number.** We can tell.
-- **Framework or library hopping** to demonstrate breadth. The stack is locked in `architecture.md`. Stick to it.
-- **AI-generated code committed without review or rationale.** We look for engineers who direct AI, not engineers who paste it.
-- **A `START_HERE.md` that is just `npm install`.** It is a setup guide for *your* project. Make it work from a fresh machine.
-- **Scope creep.** A polished MVP beats a broken full feature list.
-- **"I would have added tests but ran out of time."** Plan accordingly.
-- **Deleting or gitignoring `_bmad/`, `.claude/`, `.cursor/`, or `.opencode/`** because they look like tooling noise. They are evaluation deliverables.
-- **Pushing directly to `main`** on your fork. Branch protection. PRs. Green checks.
-- **Bulk-editing the planning artifacts** to "fix" things. If you disagree with something there, deviate in your implementation and document the deviation. The artifacts are the baseline we evaluate against.
+**BMAD story files didn't start until epic 4.** The planning was thorough but the structured story workflow (with explicit ACs as a dev contract) only kicked in at epic 4. Had it started at epic 1, AI adherence would have been higher throughout, and the story files would tell a cleaner implementation story.
 
-## Stretch goals — entirely optional
+---
 
-Epics 5–8 in `docs/planning-artifacts/epics.md` define stretch tiers: pattern library, performance upgrades (Web Worker plus OffscreenCanvas), pattern persistence (NestJS plus SQLite), pluggable rule sets.
+## Repository layout
 
-**Stretch goals do not affect your evaluation.** Skipping all of them does not lower your score. Doing them does not compensate for gaps in core deliverables. They exist for engineers who finish the core work and want to play.
-
-## Questions
-
-Reply to Interviewer. We respond within one business day.
-
-## Confidentiality and ownership
-
-Please keep this assessment confidential. Other candidates are working through the same brief.
-
-Your work remains yours. This is a hiring assessment, not contracted delivery.
-
-Good luck.
+```
+README.md                          this file
+START_HERE.md                      quick-start reference for the reviewer
+docs/
+  planning-artifacts/              PRD, architecture, epics — BMAD planning output
+  implementation-artifacts/        Story files, retros, boundary demo — BMAD dev output
+_bmad/                             BMAD Method v6.0.2 (core + bmm modules)
+.claude/commands/                  Claude Code slash commands (43 BMAD commands)
+.cursor/commands/                  Same, mirrored for Cursor
+.opencode/                         Same, mirrored for opencode
+apps/
+  web/                             Next.js 14 app (App Router, Tailwind)
+  web-e2e/                         Playwright E2E specs
+libs/
+  sim/                             Pure simulation core (Conway rules + grid utils)
+  types/                           Shared TypeScript types
+  ui/                              Shared React components (stub)
+  api-client/                      NestJS client wrapper (stub)
+```
