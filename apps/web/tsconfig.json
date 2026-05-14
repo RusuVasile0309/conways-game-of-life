@@ -55,6 +55,9 @@
     },
     {
       "path": "../../libs/types"
+    },
+    {
+      "path": "../../libs/api-client"
     }
   ]
 }

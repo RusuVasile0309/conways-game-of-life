@@ -1,1 +1,1 @@
-export * from './lib/patterns.js';
+export { listPatterns, getPattern, savePattern } from './lib/patterns';
