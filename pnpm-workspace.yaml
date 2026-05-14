@@ -1,3 +1,5 @@
 packages:
   - 'apps/*'
   - 'libs/*'
+  - 'api'
+  - 'api-e2e'
