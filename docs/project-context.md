@@ -3,7 +3,7 @@ project_name: conways-game-of-life
 user_name: BMad Master orchestration (Tech Writer sub-agent — Paige)
 date: 2026-05-05
 sections_completed: [technology_stack, critical_rules, conventions, gotchas, references]
-inputDocuments: [architecture.md, prd.md, epics.md, CLAUDE.md, README.md]
+inputDocuments: [architecture.md, prd.md, epics.md, CLAUDE.md, ASSIGNMENT.md]
 ---
 
 # Project Context for AI Agents
@@ -183,5 +183,5 @@ Canonical sources — when in doubt, read these instead of guessing.
 - **Sprint status:** `/Users/arnoe/workspace-designpickle/conways-game-of-life/docs/implementation-artifacts/sprint-status.yaml` — current story state (when populated).
 - **Repo guidance for AI agents:** `/Users/arnoe/workspace-designpickle/conways-game-of-life/CLAUDE.md` — hard constraints, BMAD command surface.
 - **AGENTS guidance:** `/Users/arnoe/workspace-designpickle/conways-game-of-life/AGENTS.md` — short-form stack and delivery summary.
-- **Take-home brief:** `/Users/arnoe/workspace-designpickle/conways-game-of-life/README.md` — first-commit rule, CI rule, AI-traces rule, "Things to Avoid" list. The hiring rubric lives here.
+- **Take-home brief:** `ASSIGNMENT.md` — first-commit rule, CI rule, AI-traces rule, "Things to Avoid" list. The hiring rubric lives here.
 - **Conway's rules reference:** https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life — canonical four rules and named patterns.

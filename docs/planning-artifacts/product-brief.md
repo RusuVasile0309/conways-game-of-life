@@ -1,6 +1,6 @@
 ---
 stepsCompleted: [step-01-init, step-02-vision, step-03-users, step-04-metrics, step-05-scope, step-06-complete]
-inputDocuments: [README.md]
+inputDocuments: [ASSIGNMENT.md]
 date: 2026-05-05
 author: BMad Master orchestration (Analyst sub-agent)
 ---

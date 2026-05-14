@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a take-home assignment to build **Conway's Game of Life** as a web app. As of this writing the repo contains only the assignment brief (`README.md`), BMAD methodology scaffolding (`_bmad/`, `.claude/`, `.cursor/`, `.opencode/`), and empty `docs/planning-artifacts` / `docs/implementation-artifacts` directories. **No application code, no `package.json`, no Nx workspace exists yet** — those land with the first authored commit. Do not fabricate build/test commands until the workspace has actually been scaffolded; instead, read `package.json` / `nx.json` once they exist.
+This is a take-home assignment to build **Conway's Game of Life** as a web app. As of this writing the repo contains only the assignment brief (`ASSIGNMENT.md`), BMAD methodology scaffolding (`_bmad/`, `.claude/`, `.cursor/`, `.opencode/`), and empty `docs/planning-artifacts` / `docs/implementation-artifacts` directories. **No application code, no `package.json`, no Nx workspace exists yet** — those land with the first authored commit. Do not fabricate build/test commands until the workspace has actually been scaffolded; instead, read `package.json` / `nx.json` once they exist.
 
 ## Hard constraints from the assignment brief
 
-These come from `README.md` and override default instincts. Read them before suggesting an approach.
+These come from `ASSIGNMENT.md` and override default instincts. Read them before suggesting an approach.
 
 - **Required stack, no substitutions:** Next.js (TypeScript) inside an **Nx monorepo** with at least one shared library and **enforced module boundaries**, **Jest** for unit/integration, **Playwright** for at least one E2E. NestJS only if a backend is added. Do not propose Vite, Turborepo, Vitest, Cypress, etc.
 - **First commit is Nx scaffolding, untouched.** The candidate must run Nx generators and commit the raw output as the very first commit before any authored code. If you are asked to "set up the project," produce that scaffolding commit cleanly with no edits to generated files mixed in. Subsequent commits show what the human authored vs. what the tool generated.
@@ -23,7 +23,8 @@ Things to actively avoid (called out in the brief): coverage-padding tests added
 ## Repository layout
 
 ```
-README.md                        # Assignment brief — re-read before scope decisions
+ASSIGNMENT.md                    # Assignment brief — re-read before scope decisions
+README.md                        # Thinking document — architecture, trade-offs, AI usage
 docs/
   planning-artifacts/            # PRDs, architecture, stories — output of BMAD planning workflows
   implementation-artifacts/      # Implementation notes, retrospectives — output of BMAD dev workflows

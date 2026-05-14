@@ -2,7 +2,7 @@
 
 ## Project status
 
-This repo is a **take-home assessment** (Conway's Game of Life). As of initial setup, no application code exists yet — only the brief (`README.md`) and BMAD scaffolding (`_bmad/`).
+This repo is a **take-home assessment** (Conway's Game of Life). As of initial setup, no application code exists yet — only the brief (`ASSIGNMENT.md`) and BMAD scaffolding (`_bmad/`).
 
 ## Required stack (no substitutions)
 
