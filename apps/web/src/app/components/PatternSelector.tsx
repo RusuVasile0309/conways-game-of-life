@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
 import { block, blinker, glider, gosperGliderGun } from '@conways-game-of-life/sim';
 import type { NamedPattern } from '@conways-game-of-life/sim';
 import { BlockIcon } from '../svgs/BlockIcon';
@@ -21,49 +23,83 @@ interface PatternSelectorProps {
 }
 
 export function PatternSelector({ onSelect, disabled = false }: PatternSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [lastSelected, setLastSelected] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const id = e.target.value;
-    if (!id) return;
-    const pattern = PATTERNS.find((p) => p.id === id);
-    if (pattern) {
-      setLastSelected(id);
-      onSelect(pattern);
+  useEffect(() => {
+    if (!isOpen) return;
+    function close(e: MouseEvent | TouchEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
     }
-    // Reset select to placeholder so same pattern can be re-selected
-    e.target.value = '';
+    document.addEventListener('mousedown', close);
+    document.addEventListener('touchstart', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('touchstart', close);
+    };
+  }, [isOpen]);
+
+  function handleSelect(pattern: NamedPattern) {
+    setLastSelected(pattern.id);
+    onSelect(pattern);
+    setIsOpen(false);
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {lastSelected && (
-        <span
-          className="text-cyan-600 flex-shrink-0"
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => { if (!disabled) setIsOpen((o) => !o); }}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label="Load a named pattern"
+        className="flex items-center gap-2 rounded border px-3 py-2 bg-white border-neutral-300
+          text-cyan-700 hover:border-cyan-600 focus-visible:outline-none
+          focus-visible:ring-2 focus-visible:ring-cyan-600
+          disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      >
+        {lastSelected && (
+          <span className="text-cyan-600" aria-hidden="true">
+            {ICONS[lastSelected]}
+          </span>
+        )}
+        <span>Load pattern…</span>
+        <svg
+          className={`w-3 h-3 ml-1 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
           aria-hidden="true"
         >
-          {ICONS[lastSelected]}
-        </span>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <ul
+          role="listbox"
+          aria-label="Named patterns"
+          className="absolute z-50 top-full mt-1 left-0 min-w-full bg-white
+            border border-neutral-200 rounded shadow-lg overflow-hidden"
+        >
+          {PATTERNS.map((p) => (
+            <li key={p.id} role="option" aria-selected={lastSelected === p.id}>
+              <button
+                type="button"
+                onClick={() => handleSelect(p)}
+                className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm
+                  text-neutral-700 hover:bg-cyan-50 hover:text-cyan-700
+                  focus-visible:outline-none focus-visible:bg-cyan-50 transition-colors"
+              >
+                <span className="text-cyan-600">{ICONS[p.id]}</span>
+                <span>{p.name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
-      <select
-        defaultValue=""
-        onChange={handleChange}
-        disabled={disabled}
-        aria-label="Load a named pattern"
-        className="rounded border px-3 py-2 bg-white border-neutral-300 text-cyan-700 text-sm
-          hover:border-cyan-600 focus-visible:outline-none focus-visible:ring-2
-          focus-visible:ring-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed
-          transition-colors"
-      >
-        <option value="" disabled>
-          Load pattern…
-        </option>
-        {PATTERNS.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

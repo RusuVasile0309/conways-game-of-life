@@ -1,18 +1,24 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createGrid, toggleCell, step, randomizeGrid, placePattern } from '@conways-game-of-life/sim';
+import { createGrid, toggleCell, step, randomizeGrid, placePattern, setCell } from '@conways-game-of-life/sim';
 import type { Grid } from '@conways-game-of-life/types';
+import type { SavedPattern } from '@conways-game-of-life/types';
 import type { NamedPattern } from '@conways-game-of-life/sim';
 import { GameCanvas } from './components/GameCanvas';
 import { SizeForm } from './components/SizeForm';
 import { PatternSelector } from './components/PatternSelector';
+import { SaveLoadPanel } from './components/SaveLoadPanel';
+import { SavePatternModal } from './components/SavePatternModal';
+import { LoadPatternModal } from './components/LoadPatternModal';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { PlayIcon } from './svgs/Play';
 import { PauseIcon } from './svgs/Pause';
 import { ArrowRightIcon } from './svgs/ArrowRight';
 import { TurtleIcon } from './svgs/Turtle';
 import { RabbitIcon } from './svgs/Rabbit';
+import { SaveIcon } from './svgs/SaveIcon';
+import { LoadIcon } from './svgs/LoadIcon';
 import './game.css';
 
 const DEFAULT_WIDTH = 40;
@@ -26,6 +32,8 @@ export default function Page() {
   const [generation, setGeneration] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [genPerSec, setGenPerSec] = useState(DEFAULT_GEN_PER_SEC);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
   const genPerSecRef = useRef(DEFAULT_GEN_PER_SEC);
 
   function handleSpeedChange(value: number) {
@@ -74,6 +82,16 @@ export default function Page() {
     setGeneration(0);
   }
 
+  function handleLoadSaved(pattern: SavedPattern) {
+    setIsRunning(false);
+    let g = createGrid(pattern.width, pattern.height);
+    for (const [x, y] of pattern.liveCells) {
+      g = setCell(g, x, y, 1);
+    }
+    setGrid(g);
+    setGeneration(0);
+  }
+
   function handlePatternSelect(pattern: NamedPattern) {
     setIsRunning(false);
     const newWidth = Math.max(grid.width, pattern.width + 4);
@@ -94,11 +112,45 @@ export default function Page() {
 
   return (
     <main className="h-screen overflow-hidden flex flex-col">
+      {/* Mobile-only floating save/load buttons — top-right corner */}
+      <div className="fixed top-3 right-4 z-40 flex gap-2 lg:hidden">
+        <button
+          onClick={() => setShowSaveModal(true)}
+          aria-label="Save pattern"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white
+            border border-neutral-200 text-cyan-700 shadow-md hover:border-cyan-600
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600
+            transition-colors"
+        >
+          <SaveIcon size={18} />
+        </button>
+        <button
+          onClick={() => setShowLoadModal(true)}
+          aria-label="Load pattern"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white
+            border border-neutral-200 text-cyan-700 shadow-md hover:border-cyan-600
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600
+            transition-colors"
+        >
+          <LoadIcon size={18} />
+        </button>
+      </div>
+
+      <SavePatternModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        grid={grid}
+      />
+      <LoadPatternModal
+        isOpen={showLoadModal}
+        onClose={() => setShowLoadModal(false)}
+        onLoadPattern={handleLoadSaved}
+      />
       <h1 className="game-title mt-6 mb-4 text-xl font-semibold tracking-tight text-cyan-800 shrink-0">
         Conway&apos;s Game of Life
       </h1>
 
-      <div className="game-content flex-1 flex flex-col lg:flex-row items-center gap-6 overflow-hidden pb-6">
+      <div className="game-content flex-1 flex flex-col lg:flex-row items-center gap-6 pb-6">
         <div className="game-canvas-wrap border-2 border-cyan-600 rounded-md overflow-hidden shrink-0">
           <GameCanvas grid={grid} isRunning={isRunning} onCellToggle={handleCellToggle} />
         </div>
@@ -171,6 +223,14 @@ export default function Page() {
             currentHeight={grid.height}
             onResize={handleResize}
           />
+
+          <div className="hidden lg:block w-full">
+            <SaveLoadPanel
+              grid={grid}
+              onLoadPattern={handleLoadSaved}
+              disabled={isRunning}
+            />
+          </div>
         </aside>
       </div>
     </main>

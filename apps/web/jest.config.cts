@@ -26,5 +26,10 @@ module.exports = async () => {
       value[1] = { ...value[1], resolvedBaseUrl: undefined };
     }
   }
+  // zod v4 ships "type":"module" — Jest resolves index.d.cts (declaration) instead of CJS runtime
+  resolved.moduleNameMapper = {
+    ...resolved.moduleNameMapper,
+    '^zod$': '<rootDir>/../../node_modules/zod/index.cjs',
+  };
   return resolved;
 };
