@@ -39,7 +39,7 @@ export function LoadPatternModal({ isOpen, onClose, onLoadPattern }: LoadPattern
         <p className="text-sm text-neutral-600 py-2">Loading…</p>
       )}
       {!isLoading && error && (
-        <p className="text-sm text-red-600 py-2" role="alert">{error}</p>
+        <p className="text-sm text-red-800 py-2" role="alert">{error}</p>
       )}
       {!isLoading && !error && patterns.length === 0 && (
         <p className="text-sm text-neutral-600 py-2">No saved patterns yet.</p>

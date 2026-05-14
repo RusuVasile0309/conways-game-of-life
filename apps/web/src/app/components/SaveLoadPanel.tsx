@@ -102,7 +102,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
       )}
 
       {errorMsg && (
-        <p className="text-xs text-red-600" role="alert">
+        <p className="text-xs text-red-800" role="alert">
           {errorMsg}
         </p>
       )}

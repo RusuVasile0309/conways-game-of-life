@@ -60,10 +60,10 @@ export function SavePatternModal({ isOpen, onClose, grid }: SavePatternModalProp
         />
 
         {isEmpty && (
-          <p className="text-xs text-amber-600">Grid is empty — paint some cells first.</p>
+          <p className="text-xs text-amber-800">Grid is empty — paint some cells first.</p>
         )}
         {error && (
-          <p className="text-xs text-red-600" role="alert">{error}</p>
+          <p className="text-xs text-red-800" role="alert">{error}</p>
         )}
 
         <div className="flex gap-2 justify-end pt-1">
