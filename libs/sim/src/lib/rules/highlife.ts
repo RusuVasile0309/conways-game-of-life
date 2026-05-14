@@ -1,5 +1,5 @@
 import type { Grid, RuleSet } from '@conways-game-of-life/types';
-import { createGrid, getCell } from '../grid.js';
+import { createGrid, getCell } from '../grid';
 
 // HighLife B36/S23: born on 3 or 6 neighbors; survives on 2 or 3.
 // Differs from Conway (B3/S23) only by the added B6 birth condition.
