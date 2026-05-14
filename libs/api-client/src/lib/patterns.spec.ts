@@ -31,6 +31,11 @@ describe('listPatterns()', () => {
     await expect(listPatterns()).rejects.toThrow('500');
   });
 
+  it('propagates network errors (fetch rejection)', async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+    await expect(listPatterns()).rejects.toThrow('fetch failed');
+  });
+
   it('throws zod error on malformed response shape', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -72,7 +77,10 @@ describe('savePattern()', () => {
     expect(result).toEqual(mockPattern);
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('/patterns'),
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }),
     );
   });
 

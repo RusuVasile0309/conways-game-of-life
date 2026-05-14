@@ -1,6 +1,6 @@
 # Story 7.2: `libs/api-client` typed wrapper
 
-Status: review
+Status: done
 
 ## Story
 
@@ -46,7 +46,7 @@ Then zero errors.
   - [x] Copy jest.config.cts + .spec.swcrc from `libs/sim` pattern
   - [x] Create `tsconfig.spec.json` with `types: ["jest", "node"]`, include spec files
   - [x] Update `tsconfig.json` references to include `tsconfig.spec.json`
-  - [x] Add `test` target to `libs/api-client/package.json`
+  - [x] `test` target auto-discovered by `@nx/jest/plugin` from `jest.config.cts` (no explicit target needed in package.json)
   - [x] Exclude spec files from `tsconfig.lib.json`
 
 - [x] Task 2: Create `patterns.ts` with zod schemas and fetch functions (AC1, AC2)
@@ -238,5 +238,21 @@ claude-sonnet-4-6
 - `libs/api-client/tsconfig.lib.json` — modified (spec file excludes, types reference)
 - `libs/api-client/tsconfig.json` — modified (references tsconfig.spec.json)
 - `libs/api-client/package.json` — modified (zod dependency)
+- `package.json` — modified (zod added at workspace root via `pnpm add zod -w`)
+- `pnpm-lock.yaml` — modified (lockfile updated)
 - `docs/implementation-artifacts/story-7-2-libs-api-client-typed-wrapper.md` — this file
 - `docs/implementation-artifacts/sprint-status.yaml` — modified
+
+## Senior Developer Review (AI)
+
+**Reviewer:** claude-sonnet-4-6 — 2026-05-14
+**Outcome:** Changes Requested → Fixed → Approved
+
+### Findings Fixed
+
+| Severity | Issue | Fix |
+|----------|-------|-----|
+| MEDIUM | AC4 gap: "network error" test was HTTP 500, not fetch rejection | Added `propagates network errors (fetch rejection)` test using `mockRejectedValueOnce` |
+| MEDIUM | Task 1 subtask description implied manual test target in package.json | Updated subtask text to reflect auto-discovery by `@nx/jest/plugin` |
+| MEDIUM | `package.json` + `pnpm-lock.yaml` missing from File List | Added both to File List |
+| LOW | `savePattern` test didn't verify `Content-Type: application/json` header | Added header assertion to `objectContaining` check |
