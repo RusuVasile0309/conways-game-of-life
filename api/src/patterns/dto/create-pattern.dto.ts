@@ -1,20 +1,23 @@
-import { IsString, IsNotEmpty, IsInt, Min, Max, IsArray } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 
 export class CreatePatternDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsInt()
   @Min(5)
   @Max(200)
-  width: number;
+  width!: number;
 
   @IsInt()
   @Min(5)
   @Max(200)
-  height: number;
+  height!: number;
 
   @IsArray()
-  liveCells: [number, number][];
+  @IsArray({ each: true })
+  @ArrayMinSize(2, { each: true })
+  @ArrayMaxSize(2, { each: true })
+  liveCells!: [number, number][];
 }

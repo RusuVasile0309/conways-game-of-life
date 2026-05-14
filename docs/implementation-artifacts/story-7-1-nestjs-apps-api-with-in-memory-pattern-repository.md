@@ -1,6 +1,6 @@
 # Story 7.1: NestJS `apps/api` with in-memory pattern repository
 
-Status: review
+Status: done
 
 ## Story
 
@@ -298,7 +298,26 @@ claude-sonnet-4-6
 - `api/src/patterns/patterns.controller.spec.ts` — created
 - `api/jest.config.cts` — created
 - `api/.spec.swcrc` — created
+- `api/tsconfig.spec.json` — created (jest types; spec files excluded from tsconfig.app.json)
+- `api/tsconfig.app.json` — modified (excludes spec files to fix CI typecheck)
+- `api/tsconfig.json` — modified (references tsconfig.spec.json)
 - `api/package.json` — modified (test target, class-validator, class-transformer)
+- `api-e2e/src/api/api.spec.ts` — modified (updated to test /patterns; old GET /api was removed)
+- `api-e2e/src/support/global-setup.ts` — modified (port 3000 → 3333)
 - `libs/types/src/lib/types.ts` — modified (SavedPattern, PatternRepository)
 - `docs/implementation-artifacts/story-7-1-nestjs-apps-api-with-in-memory-pattern-repository.md` — this file
 - `docs/implementation-artifacts/sprint-status.yaml` — modified
+
+## Senior Developer Review (AI)
+
+**Reviewer:** claude-sonnet-4-6 — 2026-05-14  
+**Outcome:** Changes Requested → Fixed → Approved
+
+### Findings Fixed
+
+| Severity | Issue | Fix |
+|----------|-------|-----|
+| HIGH | `pnpm nx typecheck api` failed: spec files included in `tsconfig.app.json` without jest types (+TS2564 on DTO) | Added `tsconfig.spec.json` with jest types; excluded specs from `tsconfig.app.json`; added `!` assertions to DTO properties |
+| HIGH | `api-e2e` tested `GET /api` (removed endpoint) and waited on port 3000 | Updated spec to test `/patterns`; fixed port to 3333 |
+| HIGH | Dead code: `app.controller.ts` + `app.service.ts` still present after removing from module | Deleted both files |
+| MEDIUM | `liveCells` DTO: `@IsArray()` only — no element-level validation | Added `@IsArray({ each: true })` + `@ArrayMinSize/MaxSize(2, { each: true })` |
