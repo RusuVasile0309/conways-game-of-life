@@ -1,6 +1,6 @@
 ---
 stepsCompleted: [step-01-init, step-02-context, step-03-starter, step-04-decisions, step-05-patterns, step-06-structure, step-07-validation, step-08-complete]
-inputDocuments: [prd.md, product-brief.md, README.md]
+inputDocuments: [prd.md, product-brief.md, ASSIGNMENT.md]
 workflowType: 'architecture'
 project_name: 'conways-game-of-life'
 user_name: 'BMad Master orchestration (Architect sub-agent — Winston)'
