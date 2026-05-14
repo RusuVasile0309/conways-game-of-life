@@ -1,5 +1,5 @@
-import { createGrid } from './grid';
-import { step } from './rules/conway';
+import { createGrid } from './grid.js';
+import { step } from './rules/conway.js';
 import {
   block,
   blinker,
@@ -7,7 +7,7 @@ import {
   gosperGliderGun,
   placePattern,
   type NamedPattern,
-} from './patterns';
+} from './patterns.js';
 
 function liveCells(grid: ReturnType<typeof createGrid>): string[] {
   const result: string[] = [];
