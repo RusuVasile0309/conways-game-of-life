@@ -253,6 +253,7 @@ claude-sonnet-4-6
 - `libs/api-client/tsconfig.lib.json` changed from `nodenext` → `bundler` moduleResolution to fix Turbopack compatibility
 - `apps/web/tsconfig.json` references extended to include `libs/api-client`
 - All CI checks pass: `tsc --noEmit` (web), `pnpm nx lint web`, `pnpm nx test web` (2/2), `pnpm nx test api-client` (9/9), `pnpm nx lint api-client`
+- WCAG AA contrast fix: `text-neutral-500` (3.19:1) and `text-neutral-400` (1.7:1) in `SaveLoadPanel` and `LoadPatternModal` fail on `bg-neutral-300` body; changed to `text-neutral-600` (5.3:1) — unblocks axe `color-contrast` check in `a11y.spec.ts`; all 11 Playwright tests pass
 
 ### File List
 

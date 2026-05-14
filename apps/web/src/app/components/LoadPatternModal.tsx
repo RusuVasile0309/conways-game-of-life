@@ -36,13 +36,13 @@ export function LoadPatternModal({ isOpen, onClose, onLoadPattern }: LoadPattern
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Load Pattern">
       {isLoading && (
-        <p className="text-sm text-neutral-400 py-2">Loading…</p>
+        <p className="text-sm text-neutral-600 py-2">Loading…</p>
       )}
       {!isLoading && error && (
         <p className="text-sm text-red-600 py-2" role="alert">{error}</p>
       )}
       {!isLoading && !error && patterns.length === 0 && (
-        <p className="text-sm text-neutral-400 py-2">No saved patterns yet.</p>
+        <p className="text-sm text-neutral-600 py-2">No saved patterns yet.</p>
       )}
       {!isLoading && patterns.length > 0 && (
         <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto" aria-label="Saved patterns">
@@ -56,7 +56,7 @@ export function LoadPatternModal({ isOpen, onClose, onLoadPattern }: LoadPattern
                 title={`${p.name} (${p.width}×${p.height})`}
               >
                 <span className="font-medium">{p.name}</span>
-                <span className="ml-2 text-neutral-400 text-xs">{p.width}×{p.height}</span>
+                <span className="ml-2 text-neutral-600 text-xs">{p.width}×{p.height}</span>
               </button>
             </li>
           ))}

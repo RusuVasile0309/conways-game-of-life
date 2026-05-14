@@ -67,7 +67,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+      <p className="text-xs font-medium text-neutral-600 uppercase tracking-wide">
         Saved Patterns
       </p>
 
@@ -108,7 +108,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
       )}
 
       {isLoadingPatterns && (
-        <p className="text-xs text-neutral-400">Loading…</p>
+        <p className="text-xs text-neutral-600">Loading…</p>
       )}
 
       {!isLoadingPatterns && savedPatterns.length > 0 && (
@@ -127,7 +127,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
                 title={`${p.name} (${p.width}×${p.height})`}
               >
                 <span className="font-medium">{p.name}</span>
-                <span className="ml-2 text-neutral-400 text-xs">
+                <span className="ml-2 text-neutral-600 text-xs">
                   {p.width}×{p.height}
                 </span>
               </button>
@@ -137,7 +137,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
       )}
 
       {!isLoadingPatterns && savedPatterns.length === 0 && !errorMsg && (
-        <p className="text-xs text-neutral-400">No saved patterns yet.</p>
+        <p className="text-xs text-neutral-600">No saved patterns yet.</p>
       )}
     </div>
   );
