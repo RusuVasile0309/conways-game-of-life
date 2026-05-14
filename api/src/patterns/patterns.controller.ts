@@ -1,10 +1,13 @@
-import { Body, Controller, Get, HttpCode, NotFoundException, Param, Post } from '@nestjs/common';
-import { InMemoryPatternRepository } from './in-memory.repository.js';
+import { Body, Controller, Get, HttpCode, Inject, NotFoundException, Param, Post } from '@nestjs/common';
+import type { PatternRepository } from '@conways-game-of-life/types';
+import { PATTERN_REPOSITORY } from './pattern-repository.token.js';
 import { CreatePatternDto } from './dto/create-pattern.dto.js';
 
 @Controller('patterns')
 export class PatternsController {
-  constructor(private readonly repo: InMemoryPatternRepository) {}
+  constructor(
+    @Inject(PATTERN_REPOSITORY) private readonly repo: PatternRepository,
+  ) {}
 
   @Get()
   list() {

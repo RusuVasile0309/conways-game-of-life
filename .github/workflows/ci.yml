@@ -30,6 +30,7 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
+      - run: api/node_modules/.bin/prisma generate --schema=api/prisma/schema.prisma
       - run: pnpm exec nx affected -t lint --base=origin/main
 
   typecheck:
@@ -51,6 +52,7 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
+      - run: api/node_modules/.bin/prisma generate --schema=api/prisma/schema.prisma
       - run: pnpm exec nx affected -t typecheck --base=origin/main
 
   test:
@@ -72,6 +74,7 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
+      - run: api/node_modules/.bin/prisma generate --schema=api/prisma/schema.prisma
       - run: pnpm exec nx affected -t test --base=origin/main --parallel=3
 
   e2e:

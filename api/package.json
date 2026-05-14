@@ -55,9 +55,19 @@
         ],
         "executor": "nx:noop"
       },
+      "generate": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "inputs": ["{projectRoot}/prisma/schema.prisma"],
+        "options": {
+          "command": "node_modules/.bin/prisma generate --schema=./prisma/schema.prisma",
+          "cwd": "api"
+        }
+      },
       "test": {
         "executor": "@nx/jest:jest",
         "outputs": ["{workspaceRoot}/api/test-output/jest"],
+        "dependsOn": ["generate"],
         "options": {
           "jestConfig": "api/jest.config.cts"
         }
@@ -87,10 +97,16 @@
       "scope:server"
     ]
   },
+  "scripts": {
+    "prisma:generate": "node_modules/.bin/prisma generate --schema=./prisma/schema.prisma",
+    "prisma:migrate": "node_modules/.bin/prisma migrate dev --schema=./prisma/schema.prisma",
+    "prisma:studio": "node_modules/.bin/prisma studio --schema=./prisma/schema.prisma"
+  },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@prisma/client": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "reflect-metadata": "^0.1.13",
@@ -98,6 +114,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@nestjs/testing": "^11.0.0"
+    "@nestjs/testing": "^11.0.0",
+    "prisma": "^6.0.0"
   }
 }
