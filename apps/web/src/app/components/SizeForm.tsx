@@ -15,7 +15,7 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
 
   function validate(raw: string): number | null {
     const n = Number(raw);
-    if (!Number.isInteger(n) || n < 5 || n > 100) return null;
+    if (!Number.isInteger(n) || n < 5 || n > 200) return null;
     return n;
   }
 
@@ -23,7 +23,7 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
     const w = validate(rawWidth);
     const h = validate(rawHeight);
     if (w === null || h === null) {
-      setError('Width and height must be integers between 5 and 100.');
+      setError('Width and height must be integers between 5 and 200.');
       return;
     }
     setError(null);
@@ -49,8 +49,8 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
               handleChange(e.target.value, height);
             }}
             min={5}
-            max={100}
             aria-label="Grid width"
+            max={200}
             className="bg-white border border-neutral-300 rounded px-2 py-1.5 text-sm text-neutral-900 w-full focus:outline-none focus:border-cyan-600"
           />
         </label>
@@ -64,8 +64,8 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
               handleChange(width, e.target.value);
             }}
             min={5}
-            max={100}
             aria-label="Grid height"
+            max={200}
             className="bg-white border border-neutral-300 rounded px-2 py-1.5 text-sm text-neutral-900 w-full focus:outline-none focus:border-cyan-600"
           />
         </label>

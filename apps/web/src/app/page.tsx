@@ -20,6 +20,7 @@ import { SaveLoadPanel } from './components/SaveLoadPanel';
 import { SavePatternModal } from './components/SavePatternModal';
 import { LoadPatternModal } from './components/LoadPatternModal';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
+import { useSimWorker } from './hooks/useSimWorker';
 import { PlayIcon } from './svgs/Play';
 import { PauseIcon } from './svgs/Pause';
 import { ArrowRightIcon } from './svgs/ArrowRight';
@@ -58,10 +59,17 @@ export default function Page() {
     setRuleSet(rs);
   }
 
-  const onTick = useCallback(() => {
-    setGrid((g) => ruleSetRef.current.step(g));
+  const gridRef = useRef(grid);
+  gridRef.current = grid;
+
+  const workerTick = useSimWorker((newGrid) => {
+    setGrid(newGrid);
     setGeneration((n) => n + 1);
-  }, []);
+  });
+
+  const onTick = useCallback(() => {
+    workerTick(gridRef.current, ruleSetRef.current.id);
+  }, [workerTick]);
 
   useSimulationLoop(isRunning, genPerSecRef, onTick);
 
