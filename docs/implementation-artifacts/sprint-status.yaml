@@ -42,14 +42,14 @@ development_status:
   1-4-ci-workflow-jest-unit-tests-on-every-pr: done
   1-5-ci-workflow-playwright-e2e-on-every-pr: done
   1-6-branch-protection-and-auto-approve-workflow: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   epic-2: done
   2-1-grid-types-and-primitives-with-tests: done
   2-2-conway-rules-engine-step-with-rule-by-rule-tests: done
   2-3-edge-case-and-boundary-tests-for-step: done
   2-4-randomize-with-injectable-rng-and-tests: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   epic-3: done
   3-1-page-shell-canvas-size-form-and-responsive-layout: done
@@ -57,14 +57,14 @@ development_status:
   3-3-play-pause-step-controls-and-generation-counter: done
   3-4-clear-and-randomize-controls: done
   3-5-speed-slider-with-raf-accumulator-mid-run-change-without-restart: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   epic-4: done
   4-1-playwright-happy-path-e2e-spec: done
   4-2-keyboard-reachability-and-accessible-name-audit: done
   4-3-responsive-verification-at-375px-portrait: done
   4-4-readme-as-thinking-document: done
-  epic-4-retrospective: optional
+  epic-4-retrospective: done
 
   epic-5: backlog
   5-1-pattern-data-and-placepattern-in-libs-sim: backlog
