@@ -17,4 +17,8 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',
+  // zod v4 "type":"module" causes Jest to resolve the .d.cts declaration file; pin to CJS
+  moduleNameMapper: {
+    '^zod$': '<rootDir>/../../node_modules/zod/index.cjs',
+  },
 };
