@@ -50,3 +50,9 @@
     height: 70vh;
   }
 }
+
+@media (max-height: 667px) {
+  .game-canvas-wrap {
+    height: calc(54vh * 0.8);
+  }
+}
