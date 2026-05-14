@@ -1,13 +1,13 @@
 ---
 story: "4.3"
 title: "Responsive verification at 375px portrait"
-status: review
+status: done
 created: 2026-05-14
 ---
 
 # Story 4.3: Responsive verification at 375px portrait
 
-Status: review
+Status: done
 
 ## Story
 
@@ -335,7 +335,7 @@ claude-sonnet-4-6 (story context creation + implementation, 2026-05-14)
 
 ### File List
 
-- `apps/web/src/app/game.css` — added `@media (max-height: 667px)` block (canvas 20% smaller on small-height screens)
-- `apps/web-e2e/src/e2e/responsive.spec.ts` — new responsive E2E spec (3 tests)
-- `docs/implementation-artifacts/sprint-status.yaml` — story status → review
+- `apps/web/src/app/game.css` — added `@media (max-height: 667px) and (max-width: 1023px)` block (canvas 20% smaller on mobile small-height screens; desktop excluded to prevent cascade conflict)
+- `apps/web-e2e/src/e2e/responsive.spec.ts` — new responsive E2E spec (3 tests); `isMobile` removed (no-op for Chromium touch); test name clarified
+- `docs/implementation-artifacts/sprint-status.yaml` — story status → done
 - `docs/implementation-artifacts/story-4-3-responsive-verification-at-375px-portrait.md` — this file

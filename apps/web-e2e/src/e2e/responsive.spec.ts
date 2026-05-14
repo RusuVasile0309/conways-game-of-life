@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('responsive at 375px portrait', () => {
-  test.use({ viewport: { width: 375, height: 667 }, hasTouch: true, isMobile: true });
+  test.use({ viewport: { width: 375, height: 667 }, hasTouch: true });
 
   test('no horizontal scrollbar at 375x667', async ({ page }) => {
     await page.goto('/');
@@ -34,7 +34,7 @@ test.describe('responsive at 375px portrait', () => {
     await expect(page.getByTestId('gen-count')).toBeVisible();
   });
 
-  test('tap on canvas toggles a cell alive (touch parity with mouse)', async ({
+  test('touch tap on canvas starts simulation (touch handler parity with mouse click)', async ({
     page,
   }) => {
     await page.goto('/');
