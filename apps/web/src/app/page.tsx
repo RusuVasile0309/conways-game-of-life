@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createGrid, toggleCell, step, randomizeGrid } from '@conways-game-of-life/sim';
+import { createGrid, toggleCell, step, randomizeGrid, placePattern } from '@conways-game-of-life/sim';
 import type { Grid } from '@conways-game-of-life/types';
+import type { NamedPattern } from '@conways-game-of-life/sim';
 import { GameCanvas } from './components/GameCanvas';
 import { SizeForm } from './components/SizeForm';
+import { PatternSelector } from './components/PatternSelector';
 import { useSimulationLoop } from './hooks/useSimulationLoop';
 import { PlayIcon } from './svgs/Play';
 import { PauseIcon } from './svgs/Pause';
@@ -69,6 +71,17 @@ export default function Page() {
   function handleRandomize() {
     setIsRunning(false);
     setGrid((g) => randomizeGrid(g));
+    setGeneration(0);
+  }
+
+  function handlePatternSelect(pattern: NamedPattern) {
+    setIsRunning(false);
+    const newWidth = Math.max(grid.width, pattern.width + 4);
+    const newHeight = Math.max(grid.height, pattern.height + 4);
+    const newGrid = createGrid(newWidth, newHeight);
+    const anchorX = Math.floor((newWidth - pattern.width) / 2);
+    const anchorY = Math.floor((newHeight - pattern.height) / 2);
+    setGrid(placePattern(newGrid, pattern, anchorX, anchorY));
     setGeneration(0);
   }
 
@@ -151,6 +164,8 @@ export default function Page() {
               Randomize
             </button>
           </div>
+
+          <PatternSelector onSelect={handlePatternSelect} disabled={isRunning} />
 
           <SizeForm
             currentWidth={grid.width}
