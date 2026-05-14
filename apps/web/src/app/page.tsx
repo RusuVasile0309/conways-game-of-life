@@ -156,16 +156,15 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="flex gap-2 justify-center">
+          <div className="flex flex-wrap gap-2 justify-center items-center">
             <button onClick={handleClear} className={btnSecondary} aria-label="Clear grid">
               Clear
             </button>
             <button onClick={handleRandomize} className={btnSecondary} aria-label="Randomize grid">
               Randomize
             </button>
+            <PatternSelector onSelect={handlePatternSelect} disabled={isRunning} />
           </div>
-
-          <PatternSelector onSelect={handlePatternSelect} disabled={isRunning} />
 
           <SizeForm
             currentWidth={grid.width}

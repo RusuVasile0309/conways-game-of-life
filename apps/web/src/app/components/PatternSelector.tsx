@@ -36,7 +36,7 @@ export function PatternSelector({ onSelect, disabled = false }: PatternSelectorP
   }
 
   return (
-    <div className="flex items-center gap-2 w-full justify-center">
+    <div className="flex items-center gap-2">
       {lastSelected && (
         <span
           className="text-cyan-600 flex-shrink-0"
