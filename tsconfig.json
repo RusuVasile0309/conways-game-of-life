@@ -20,6 +20,12 @@
     },
     {
       "path": "./libs/api-client"
+    },
+    {
+      "path": "./api-e2e"
+    },
+    {
+      "path": "./api"
     }
   ]
 }
