@@ -4,16 +4,8 @@ import { useState } from 'react';
 import { savePattern } from '@conways-game-of-life/api-client';
 import type { Grid } from '@conways-game-of-life/types';
 import { Modal } from './Modal';
-
-function gridToLiveCells(grid: Grid): [number, number][] {
-  const live: [number, number][] = [];
-  for (let y = 0; y < grid.height; y++) {
-    for (let x = 0; x < grid.width; x++) {
-      if (grid.cells[y * grid.width + x] === 1) live.push([x, y]);
-    }
-  }
-  return live;
-}
+import { gridToLiveCells } from '../lib/grid-utils';
+import { btnBase } from '../lib/button-classes';
 
 interface SavePatternModalProps {
   isOpen: boolean;
@@ -49,8 +41,6 @@ export function SavePatternModal({ isOpen, onClose, grid }: SavePatternModalProp
     }
   }
 
-  const btnBase =
-    'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Save Pattern">

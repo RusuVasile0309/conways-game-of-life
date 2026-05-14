@@ -256,10 +256,20 @@ claude-sonnet-4-6
 
 ### File List
 
-- `apps/web/src/app/components/SaveLoadPanel.tsx` — created (save/load UI component)
-- `apps/web/src/app/page.tsx` — modified (typo fix, `handleLoadSaved`, `SaveLoadPanel` wiring, `setCell` + `SavedPattern` imports)
+- `apps/web/src/app/components/SaveLoadPanel.tsx` — created (desktop save/load UI panel)
+- `apps/web/src/app/components/Modal.tsx` — created (reusable modal wrapper with ESC + backdrop)
+- `apps/web/src/app/components/SavePatternModal.tsx` — created (mobile save modal)
+- `apps/web/src/app/components/LoadPatternModal.tsx` — created (mobile load modal)
+- `apps/web/src/app/components/PatternSelector.tsx` — modified (replaced native `<select>` with custom accessible dropdown)
+- `apps/web/src/app/svgs/SaveIcon.tsx` — created (floppy-disk SVG for mobile FAB)
+- `apps/web/src/app/svgs/LoadIcon.tsx` — created (folder+arrow SVG for mobile FAB)
+- `apps/web/src/app/lib/grid-utils.ts` — created (shared `gridToLiveCells` utility)
+- `apps/web/src/app/lib/button-classes.ts` — created (shared Tailwind button class constants)
+- `apps/web/src/app/page.tsx` — modified (typo fix, `handleLoadSaved`, mobile FABs, modal state, `SaveLoadPanel` wiring)
 - `apps/web/tsconfig.json` — modified (added `libs/api-client` to `references`)
-- `libs/api-client/src/index.ts` — modified (removed `.js` extension from barrel export)
+- `libs/api-client/src/index.ts` — modified (explicit named exports, removed `.js` extension)
+- `libs/api-client/src/lib/patterns.ts` — modified (fixed `NEXT_PUBLIC_API_BASE_URL` env var name)
 - `libs/api-client/tsconfig.lib.json` — modified (`nodenext` → `bundler` moduleResolution)
+- `api/src/main.ts` — modified (CORS enabled with configurable comma-separated origin list)
 - `docs/implementation-artifacts/story-7-3-save-and-load-ui-in-the-web-app.md` — this file
 - `docs/implementation-artifacts/sprint-status.yaml` — modified (story status updated)

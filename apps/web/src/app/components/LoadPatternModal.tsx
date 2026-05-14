@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { listPatterns } from '@conways-game-of-life/api-client';
 import type { SavedPattern } from '@conways-game-of-life/types';
 import { Modal } from './Modal';
+import { btnBase } from '../lib/button-classes';
 
 interface LoadPatternModalProps {
   isOpen: boolean;
@@ -31,8 +32,6 @@ export function LoadPatternModal({ isOpen, onClose, onLoadPattern }: LoadPattern
     onClose();
   }
 
-  const btnBase =
-    'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Load Pattern">

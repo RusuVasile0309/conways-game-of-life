@@ -4,16 +4,8 @@ import { useState, useEffect } from 'react';
 import { listPatterns, savePattern } from '@conways-game-of-life/api-client';
 import type { SavedPattern } from '@conways-game-of-life/types';
 import type { Grid } from '@conways-game-of-life/types';
-
-function gridToLiveCells(grid: Grid): [number, number][] {
-  const live: [number, number][] = [];
-  for (let y = 0; y < grid.height; y++) {
-    for (let x = 0; x < grid.width; x++) {
-      if (grid.cells[y * grid.width + x] === 1) live.push([x, y]);
-    }
-  }
-  return live;
-}
+import { gridToLiveCells } from '../lib/grid-utils';
+import { btnBase, btnSecondary as btnSecondaryClass } from '../lib/button-classes';
 
 interface SaveLoadPanelProps {
   grid: Grid;
@@ -71,9 +63,7 @@ export function SaveLoadPanel({ grid, onLoadPattern, disabled = false }: SaveLoa
     }
   }
 
-  const btnBase =
-    'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
-  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 text-cyan-700 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondary = btnSecondaryClass;
 
   return (
     <div className="flex flex-col gap-3 w-full">
