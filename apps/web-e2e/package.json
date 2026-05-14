@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "tags": ["scope:e2e"],
+    "tags": [
+      "scope:e2e"
+    ],
     "implicitDependencies": [
       "@temp-nx/web"
     ]
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3"
   }
 }

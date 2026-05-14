@@ -165,7 +165,11 @@ importers:
         specifier: ^19.0.0
         version: 19.2.5(react@19.2.5)
 
-  apps/web-e2e: {}
+  apps/web-e2e:
+    devDependencies:
+      '@axe-core/playwright':
+        specifier: ^4.11.3
+        version: 4.11.3(playwright-core@1.36.0)
 
   libs/api-client:
     dependencies:
@@ -202,6 +206,15 @@ packages:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
+    dev: true
+
+  /@axe-core/playwright@4.11.3(playwright-core@1.36.0):
+    resolution: {integrity: sha512-h/kfksv4F0cVIDlKpT4700OehdRgpvuVskuQ2nb7/JmtWUXpe9ftHAPtwyXGvVSsa6SJ64A9ER7Zrzc/sIvC4w==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
+    dependencies:
+      axe-core: 4.11.4
+      playwright-core: 1.36.0
     dev: true
 
   /@babel/code-frame@7.29.0:
