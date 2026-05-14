@@ -69,7 +69,7 @@ development_status:
   epic-5: done
   5-1-pattern-data-and-placepattern-in-libs-sim: done
   5-2-pattern-selector-ui-in-the-web-app: done
-  epic-5-retrospective: optional
+  epic-5-retrospective: done
 
   epic-6: backlog
   6-1-move-step-into-a-web-worker-with-transferable-grid-buffers: backlog
