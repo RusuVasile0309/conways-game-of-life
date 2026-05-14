@@ -76,12 +76,12 @@ export default function Page() {
     'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
   const btnIcon = `${btnBase} w-9 h-9 flex items-center justify-center`;
   const btnPrimary = `${btnIcon} bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 disabled:opacity-40 disabled:cursor-not-allowed`;
-  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 text-cyan-600 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 text-cyan-700 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
   const btnSecondaryIcon = `${btnIcon} bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
 
   return (
     <main className="h-screen overflow-hidden flex flex-col">
-      <h1 className="game-title mt-6 mb-4 text-xl font-semibold tracking-tight text-cyan-600 shrink-0">
+      <h1 className="game-title mt-6 mb-4 text-xl font-semibold tracking-tight text-cyan-800 shrink-0">
         Conway&apos;s Game of Life
       </h1>
 
@@ -97,7 +97,6 @@ export default function Page() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsRunning((r) => !r)}
-                  disabled={!isRunning && !grid.cells.some(Boolean)}
                   className={btnPrimary}
                   aria-label={isRunning ? 'Pause simulation' : 'Play simulation'}
                 >
@@ -112,7 +111,7 @@ export default function Page() {
                 </button>
                 <button
                   onClick={handleStep}
-                  disabled={isRunning || !grid.cells.some(Boolean)}
+                  disabled={isRunning}
                   className={btnSecondaryIcon}
                   aria-label="Step one generation"
                 >

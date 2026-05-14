@@ -28,7 +28,7 @@
 # - SM typically creates next story ONLY after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then Dev runs code-review (fresh context, ideally different LLM)
 
-generated: 2026-05-13
+generated: 2026-05-14
 project: conways-game-of-life
 project_key: NOKEY
 tracking_system: file-system
@@ -61,7 +61,7 @@ development_status:
 
   epic-4: in-progress
   4-1-playwright-happy-path-e2e-spec: done
-  4-2-keyboard-reachability-and-accessible-name-audit: in-progress
+  4-2-keyboard-reachability-and-accessible-name-audit: review
   4-3-responsive-verification-at-375px-portrait: backlog
   4-4-readme-as-thinking-document: backlog
   epic-4-retrospective: optional

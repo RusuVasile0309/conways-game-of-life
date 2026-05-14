@@ -35,7 +35,7 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Grid Size</h2>
+      <h2 className="text-xs font-medium text-neutral-600 uppercase tracking-wider">Grid Size</h2>
       <div className="flex gap-2">
         <label className="flex flex-col gap-1 flex-1">
           <span className="text-xs text-neutral-600">Width</span>
@@ -49,7 +49,7 @@ export function SizeForm({ currentWidth, currentHeight, onResize }: Props) {
           />
         </label>
         <label className="flex flex-col gap-1 flex-1">
-          <span className="text-xs text-neutral-500">Height</span>
+          <span className="text-xs text-neutral-600">Height</span>
           <input
             type="number"
             value={height}
