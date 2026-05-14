@@ -4,6 +4,12 @@ export interface Grid {
   cells: Uint8Array;
 }
 
+export interface RuleSet {
+  readonly id: string;
+  readonly name: string;
+  step(grid: Grid): Grid;
+}
+
 export interface SavedPattern {
   id: string;
   name: string;
