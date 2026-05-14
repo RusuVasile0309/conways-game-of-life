@@ -50,3 +50,10 @@
     height: 70vh;
   }
 }
+
+/* iPhone SE portrait (375×667): shrink canvas 20% so controls stay in-viewport */
+@media (max-height: 667px) and (max-width: 1023px) {
+  .game-canvas-wrap {
+    height: calc(54vh * 0.8);
+  }
+}
