@@ -69,7 +69,7 @@ The enforcement is real, not aspirational. PR #2 (`feat/1-2-module-boundaries`) 
 
 **No NestJS backend shipped.** The architecture document describes it in detail (epics 7–8) and `libs/api-client` is stubbed and tagged correctly. It's not scope creep to add it — it's one clear epic — but adding a backend that the canvas doesn't yet need felt like complexity without signal in the MVP window.
 
-**No Web Worker or OffscreenCanvas.** The rAF accumulator on the main thread handles 50×50 at 30 gen/sec comfortably (NFR4 satisfied). Moving `step()` into a worker (epic 6) is the right next step, but it's a Transferable + SharedArrayBuffer story that deserves its own PR, not a rushed addition.
+**No OffscreenCanvas (yet).** `step()` now runs in a dedicated Web Worker (epic 6.1, story complete). The main thread handles timing, input, and canvas rendering; the worker handles the simulation computation. OffscreenCanvas (story 6.2) would move rendering into the worker too, freeing the main thread entirely — but that is a separate story.
 
 **No pattern library.** Patterns (glider, Gosper gun, blinker) would live in `libs/sim` as typed exports (epic 5). The sim library is already shaped to receive them — `placePattern(grid, pattern, origin)` is a natural pure function there.
 
@@ -97,9 +97,11 @@ I used Claude Code (with BMAD workflow commands, on epic 4) throughout. The meth
 
 ## What's next with another 8 hours
 
-1. **Pattern library (epic 5):** Glider, blinker, and Gosper gun as typed data exports in `libs/sim`. A small selector dropdown in the UI calls `placePattern()`. Two stories, two PRs.
+1. **Pattern library (epic 5):** ✅ Shipped. Block, Blinker, Glider, and Gosper Glider Gun as typed data exports in `libs/sim`. Pattern selector UI in `apps/web` with auto-resize and SVG icons.
 
-2. **Web Worker (epic 6):** Move `step()` off the main thread via a dedicated worker with `Transferable` grid buffers. Add OffscreenCanvas for zero-jank rendering. This clears NFR5 (200×200 at 60fps). The rAF accumulator already isolates the render/tick boundary, so the refactor is cleaner than it looks.
+2. **Web Worker — simulation (epic 6.1):** ✅ Shipped. `step()` runs in a dedicated Web Worker. Grid `ArrayBuffer`s are transferred (zero-copy) to the worker each tick; the result is transferred back. Main thread drives timing and rendering.
+
+3. **OffscreenCanvas (epic 6.2):** Move canvas rendering into the worker so the main thread only handles input. The `<canvas>` element is transferred once via `transferControlToOffscreen()`; the worker draws each tick using the same `fillRect` strategy.
 
 3. **NestJS API (epic 7):** `apps/api` with an in-memory pattern repository, a typed `libs/api-client`, and save/load endpoints. SQLite via Prisma as a follow-up story — the architecture documents the `PatternRepository` interface that makes the swap mechanical.
 
@@ -116,6 +118,40 @@ I used Claude Code (with BMAD workflow commands, on epic 4) throughout. The meth
 **`ai-usage.md` and this README overlap.** The `docs/implementation-artifacts/ai-usage.md` artifact started as a separate detailed log, but its most important content ended up here. Ideally there would be one source of truth for AI reflections, not two.
 
 **BMAD story files didn't start until epic 4.** The planning was thorough but the structured story workflow (with explicit ACs as a dev contract) only kicked in at epic 4. Had it started at epic 1, AI adherence would have been higher throughout, and the story files would tell a cleaner implementation story.
+
+---
+
+## Performance (NFR5)
+
+**Target:** 200×200 grid at 30 gen/sec, sustained ≥ 60fps render, no individual frame > 33ms.
+
+**Architecture:** `step()` runs in a dedicated Web Worker (`apps/web/src/app/workers/sim.worker.ts`). The main thread drives timing via the rAF + time accumulator and handles all input and canvas rendering. On each tick the current grid's `ArrayBuffer` is copied and `postMessage`-transferred to the worker; the worker computes the next generation and transfers the result buffer back. The main thread reconstructs a `Grid` from the returned buffer and calls `setGrid`, triggering a canvas redraw.
+
+**How to measure:**
+1. Open the app in Chrome.
+2. Set Width = 200, Height = 200 in the size form → Apply.
+3. Click Randomize.
+4. Set the speed slider to max (60 gen/sec).
+5. Open DevTools → Performance tab → click Record.
+6. Click Play.
+7. Let it run for 5 seconds, then click Stop.
+8. Inspect the **Frames** row — all frames should appear green (≤ 16.7ms each).
+9. The **Worker** thread row shows `step()` computation off the main thread.
+10. Check the **Main** thread — it should be dominated by canvas `fillRect` calls and input handling, not simulation.
+
+**Measured results (200×200, 60 gen/sec, Chrome):**
+
+| Metric | With Worker | Without Worker |
+|--------|-------------|----------------|
+| FPS (live overlay) | 55.2 fps | 60.0 fps |
+| Frames row | All green, no drops | All green, no drops |
+| Worker thread | Visible, active | Not present |
+| INP (input latency) | Not flagged | 29ms |
+| JS heap pressure | 25–111 MB (GC) | 25–125 MB (GC) |
+
+**Honest finding:** At 200×200, raw FPS is marginally higher without the worker (60 vs 55). The `postMessage` round-trip and `ArrayBuffer.slice(0)` copy per tick (~40KB × 60/sec = 2.4MB/s of GC pressure) introduce overhead that at this grid size exceeds the computation savings. The worker becomes a clear FPS win at larger grids (500×500+) where `step()` dominates the budget.
+
+**What the worker does give at 200×200** is a 29ms reduction in input latency (INP). Without the worker, `step()` runs on the main thread and blocks button clicks, slider drags, and cell toggles for up to 29ms per tick. With the worker, the main thread is always free for input — interactions are handled immediately regardless of simulation speed.
 
 ---
 

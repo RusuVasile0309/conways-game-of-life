@@ -72,33 +72,33 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
       const gridBottom = Math.min(H, (g.height - offsetY) * scale);
       ctx.strokeStyle = GRID_COLOR;
       ctx.lineWidth = 1;
+      ctx.beginPath();
       for (let col = startCol; col <= endCol; col++) {
         const x = Math.round((col - offsetX) * scale) + 0.5;
-        ctx.beginPath();
         ctx.moveTo(x, gridTop);
         ctx.lineTo(x, gridBottom);
-        ctx.stroke();
       }
       for (let row = startRow; row <= endRow; row++) {
         const y = Math.round((row - offsetY) * scale) + 0.5;
-        ctx.beginPath();
         ctx.moveTo(gridLeft, y);
         ctx.lineTo(gridRight, y);
-        ctx.stroke();
       }
+      ctx.stroke();
     }
 
     const pad = scale >= 4 ? 1 : 0;
     ctx.fillStyle = ALIVE_COLOR;
+    ctx.beginPath();
     for (let row = startRow; row < endRow; row++) {
       for (let col = startCol; col < endCol; col++) {
         if (g.cells[row * g.width + col] === 1) {
           const x = (col - offsetX) * scale;
           const y = (row - offsetY) * scale;
-          ctx.fillRect(x + pad, y + pad, scale - pad, scale - pad);
+          ctx.rect(x + pad, y + pad, scale - pad, scale - pad);
         }
       }
     }
+    ctx.fill();
   }, []);
 
   const fitToCanvas = useCallback(() => {
