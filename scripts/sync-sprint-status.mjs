@@ -21,7 +21,7 @@ const STATUS_FILE = resolve(ROOT, 'docs/implementation-artifacts/sprint-status.y
 
 // ── 1. Collect completed story IDs from git log ──────────────────────────────
 
-const log = execSync('git log --oneline --all', { encoding: 'utf8', cwd: ROOT });
+const log = execSync('git log --oneline main', { encoding: 'utf8', cwd: ROOT });
 const doneStories = new Set();
 
 for (const line of log.split('\n')) {

@@ -17,7 +17,7 @@ Importing from `scope:api-client` is a forbidden boundary crossing.
 ## Lint output (exit code 1)
 
 ```
-/Users/vasilerusu/Desktop/Projects/conways-game-of-life/libs/sim/src/index.ts
+libs/sim/src/index.ts
   2:1  error  A project tagged with "scope:sim" can only depend on libs tagged with "scope:types"  @nx/enforce-module-boundaries
 
 ✖ 2 problems (1 error, 1 warning)
