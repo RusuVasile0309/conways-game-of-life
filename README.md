@@ -117,8 +117,6 @@ I used Claude Code (with BMAD workflow commands, on epic 4) throughout. The meth
 
 **`ai-usage.md` and this README overlap.** The `docs/implementation-artifacts/ai-usage.md` artifact started as a separate detailed log, but its most important content ended up here. Ideally there would be one source of truth for AI reflections, not two.
 
-**BMAD story files didn't start until epic 4.** The planning was thorough but the structured story workflow (with explicit ACs as a dev contract) only kicked in at epic 4. Had it started at epic 1, AI adherence would have been higher throughout, and the story files would tell a cleaner implementation story.
-
 ---
 
 ## Performance (NFR5)
