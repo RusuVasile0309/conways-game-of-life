@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { SavedPattern } from '@conways-game-of-life/types';
 
-const getApiBase = () => process.env['NEXT_PUBLIC_API_BASE_URL'] ?? 'http://localhost:3333';
+const getApiBase = () => process.env['NEXT_PUBLIC_API_BASE_URL'] ?? '/api';
 
 const savedPatternSchema = z.object({
   id: z.string(),

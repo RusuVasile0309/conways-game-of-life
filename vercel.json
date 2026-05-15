@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm nx build web",
+  "buildCommand": "npx prisma generate --schema=api/prisma/schema.prisma && npx prisma migrate deploy --schema=api/prisma/schema.prisma && pnpm nx build web",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile"
