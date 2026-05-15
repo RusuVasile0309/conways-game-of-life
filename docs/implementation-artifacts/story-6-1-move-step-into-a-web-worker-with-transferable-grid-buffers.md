@@ -317,7 +317,8 @@ None — implementation went smoothly. One test failure fixed: JSDOM doesn't sup
 
 - Worker is stateless by design — receives full grid each tick, no internal state. Avoids sync bugs on clear/randomize/resize.
 - `buffer.slice(0)` copy before transfer keeps main-thread `grid.cells` valid during worker transit. At 200×200 = 40KB this is cheap but does create GC pressure at high gen/sec.
-- Performance measured with/without worker at 200×200, 60 gen/sec: with worker = 55.2fps, without = 60fps. Raw FPS slightly lower with worker due to postMessage round-trip overhead. The real benefit is INP: without worker, input latency is 29ms (step() blocks the main thread); with worker, main thread is always free for input.
+- Performance measured with/without worker at 200×200, 30 gen/sec: both achieve ≥60fps canvas composite rate and no frame >33ms after batching the canvas stroke/fill calls (see renderer fix below). The real benefit of the worker is INP: without it, input latency at 200×200 is ~29ms (step() blocks the main thread); with worker, the main thread is always free for input.
+- **Renderer fix (post-initial commit):** `GameCanvas.draw()` was issuing one `ctx.stroke()` call per grid line (~400 calls at 200×200). Each stroke flushes to the GPU. Batched all `moveTo/lineTo` into a single `ctx.beginPath()` block with one `ctx.stroke()`. Similarly replaced individual `fillRect` calls with `ctx.rect()` + single `ctx.fill()`. This dropped canvas draw time from ~15–25ms to ~3–8ms, eliminating the >33ms frame spikes.
 - SizeForm max raised from 100 to 200 to enable the 200×200 performance target from the AC.
 - `/// <reference lib="webworker" />` required in sim.worker.ts because apps/web tsconfig has `"lib": ["dom"]` which types `self` as `Window`.
 
