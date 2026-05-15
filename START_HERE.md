@@ -4,9 +4,7 @@
 
 **`<vercel-url>` — fill in after first deploy**
 
-> Note: the live URL hosts the Next.js frontend only. The NestJS save/load API (Epic 7 stretch tier) requires a separate server process and is not included in the Vercel deployment. All MVP features (grid, simulation, controls, pattern library, rule sets) work without it.
->
-> See [docs/implementation-artifacts/vercel-deploy.md](docs/implementation-artifacts/vercel-deploy.md) for deployment details.
+> Save/load patterns requires a `DATABASE_URL` env var set in Vercel (see [docs/implementation-artifacts/vercel-deploy.md](docs/implementation-artifacts/vercel-deploy.md)). All other features (grid, simulation, controls, pattern library, rule sets) work without it.
 
 ## Prerequisites
 
@@ -21,6 +19,31 @@ cd conways-game-of-life
 pnpm install
 pnpm exec playwright install --with-deps
 ```
+
+## Database setup (save/load feature)
+
+The save/load pattern feature persists data to PostgreSQL via Prisma. A free [Neon](https://neon.tech) database works well.
+
+1. Copy the env template and fill in your connection string:
+
+   ```bash
+   cp .env.example .env
+   # edit .env — set DATABASE_URL to your PostgreSQL connection string
+   ```
+
+2. Apply the migration to create the `Pattern` table:
+
+   ```bash
+   api/node_modules/.bin/prisma migrate deploy --schema=api/prisma/schema.prisma
+   ```
+
+3. (Optional) regenerate the Prisma client after any schema changes:
+
+   ```bash
+   pnpm nx run api:generate
+   ```
+
+> Without `DATABASE_URL` the app still runs — save/load shows an error, everything else works normally.
 
 ## Run the app
 
