@@ -25,7 +25,7 @@ test.describe('keyboard reachability and accessible names', () => {
     await page.evaluate(
       'document.body.setAttribute("tabindex", "-1"); document.body.focus()',
     );
-    // DOM order: Play → Step → Speed slider → Clear → Randomize → Load pattern → Width → Height
+    // DOM order: Play → Step → Speed slider → Clear → Randomize → Load pattern → Rule set → Width → Height
     await page.keyboard.press('Tab');
     await expect(
       page.getByRole('button', { name: /play simulation/i }),
@@ -53,6 +53,9 @@ test.describe('keyboard reachability and accessible names', () => {
 
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Load a named pattern')).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByLabel('Rule set')).toBeFocused();
 
     await page.keyboard.press('Tab');
     await expect(page.getByLabel('Width')).toBeFocused();
@@ -118,5 +121,6 @@ test.describe('keyboard reachability and accessible names', () => {
     await expect(page.getByLabel('Width')).toBeVisible();
     await expect(page.getByLabel('Height')).toBeVisible();
     await expect(page.getByLabel('Load a named pattern')).toBeVisible();
+    await expect(page.getByLabel('Rule set')).toBeVisible();
   });
 });
