@@ -62,14 +62,14 @@ export default function Page() {
   const gridRef = useRef(grid);
   gridRef.current = grid;
 
-  const workerTick = useSimWorker((newGrid) => {
+  const { tick, draw, initCanvas } = useSimWorker((newGrid) => {
     setGrid(newGrid);
     setGeneration((n) => n + 1);
   });
 
   const onTick = useCallback(() => {
-    workerTick(gridRef.current, ruleSetRef.current.id);
-  }, [workerTick]);
+    tick(gridRef.current, ruleSetRef.current.id);
+  }, [tick]);
 
   useSimulationLoop(isRunning, genPerSecRef, onTick);
 
@@ -181,6 +181,8 @@ export default function Page() {
             grid={grid}
             isRunning={isRunning}
             onCellToggle={handleCellToggle}
+            onDraw={draw}
+            onCanvasMount={initCanvas}
           />
         </div>
 

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { Grid } from '@conways-game-of-life/types';
 
+export type Camera = { offsetX: number; offsetY: number; scale: number };
+
 export function useSimWorker(onGrid: (grid: Grid) => void) {
   const onGridRef = useRef(onGrid);
   onGridRef.current = onGrid;
@@ -41,7 +43,26 @@ export function useSimWorker(onGrid: (grid: Grid) => void) {
     };
   }, []);
 
-  return useCallback((grid: Grid, ruleSetId: string) => {
+  const initCanvas = useCallback((canvas: OffscreenCanvas) => {
+    workerRef.current?.postMessage({ type: 'init', canvas }, [canvas]);
+  }, []);
+
+  const draw = useCallback(
+    (grid: Grid, camera: Camera, canvasW: number, canvasH: number) => {
+      workerRef.current?.postMessage({
+        type: 'draw',
+        cells: grid.cells.buffer,
+        width: grid.width,
+        height: grid.height,
+        camera,
+        canvasW,
+        canvasH,
+      });
+    },
+    [],
+  );
+
+  const tick = useCallback((grid: Grid, ruleSetId: string) => {
     const worker = workerRef.current;
     if (!worker || inFlightRef.current) return;
     inFlightRef.current = true;
@@ -51,4 +72,6 @@ export function useSimWorker(onGrid: (grid: Grid) => void) {
       [copy],
     );
   }, []);
+
+  return { initCanvas, draw, tick };
 }

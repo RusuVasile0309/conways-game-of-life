@@ -17,3 +17,13 @@ const MockWorker = jest.fn().mockImplementation(() => ({
 }));
 
 global.Worker = MockWorker as unknown as typeof Worker;
+
+// JSDOM does not implement transferControlToOffscreen. Return a minimal stub so
+// GameCanvas component tests don't throw when the mount effect fires.
+HTMLCanvasElement.prototype.transferControlToOffscreen = function () {
+  return {
+    getContext: () => null,
+    width: this.width,
+    height: this.height,
+  } as unknown as OffscreenCanvas;
+};

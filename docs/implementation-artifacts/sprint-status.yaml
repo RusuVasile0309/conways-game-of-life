@@ -73,7 +73,7 @@ development_status:
 
   epic-6: in-progress
   6-1-move-step-into-a-web-worker-with-transferable-grid-buffers: done
-  6-2-render-via-offscreencanvas-from-the-worker: backlog
+  6-2-render-via-offscreencanvas-from-the-worker: in-progress
   epic-6-retrospective: optional
 
   epic-7: done

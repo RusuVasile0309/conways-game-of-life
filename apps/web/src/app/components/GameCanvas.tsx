@@ -2,28 +2,28 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import type { Grid } from '@conways-game-of-life/types';
+import type { Camera } from '../hooks/useSimWorker';
 
-const ALIVE_COLOR = '#22d3ee';
-const DEAD_COLOR = '#0a0a0a';
-const GRID_COLOR = 'rgba(255, 255, 255, 1)';
 const SCALE_DESKTOP = 30;
 const SCALE_MOBILE = 30;
 const MIN_SCALE = 2;
 const MAX_SCALE = 64;
 
-interface Camera {
-  offsetX: number;
-  offsetY: number;
-  scale: number;
-}
-
 interface Props {
   grid: Grid;
   isRunning: boolean;
   onCellToggle: (col: number, row: number) => void;
+  onDraw: (grid: Grid, camera: Camera, canvasW: number, canvasH: number) => void;
+  onCanvasMount: (canvas: OffscreenCanvas) => void;
 }
 
-export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
+export function GameCanvas({
+  grid,
+  isRunning,
+  onCellToggle,
+  onDraw,
+  onCanvasMount,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cameraRef = useRef<Camera>({
@@ -41,69 +41,37 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
   } | null>(null);
   const isRunningRef = useRef(isRunning);
   const onCellToggleRef = useRef(onCellToggle);
+  const onDrawRef = useRef(onDraw);
+  const onCanvasMountRef = useRef(onCanvasMount);
 
   gridRef.current = grid;
   isRunningRef.current = isRunning;
   onCellToggleRef.current = onCellToggle;
+  onDrawRef.current = onDraw;
+  onCanvasMountRef.current = onCanvasMount;
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const { offsetX, offsetY, scale } = cameraRef.current;
-    const g = gridRef.current;
-    const W = canvas.width;
-    const H = canvas.height;
-
-    ctx.fillStyle = DEAD_COLOR;
-    ctx.fillRect(0, 0, W, H);
-
-    const startCol = Math.max(0, Math.floor(offsetX));
-    const startRow = Math.max(0, Math.floor(offsetY));
-    const endCol = Math.min(g.width, Math.ceil(offsetX + W / scale));
-    const endRow = Math.min(g.height, Math.ceil(offsetY + H / scale));
-
-    if (scale >= 4) {
-      const gridLeft = Math.max(0, -offsetX * scale);
-      const gridTop = Math.max(0, -offsetY * scale);
-      const gridRight = Math.min(W, (g.width - offsetX) * scale);
-      const gridBottom = Math.min(H, (g.height - offsetY) * scale);
-      ctx.strokeStyle = GRID_COLOR;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let col = startCol; col <= endCol; col++) {
-        const x = Math.round((col - offsetX) * scale) + 0.5;
-        ctx.moveTo(x, gridTop);
-        ctx.lineTo(x, gridBottom);
-      }
-      for (let row = startRow; row <= endRow; row++) {
-        const y = Math.round((row - offsetY) * scale) + 0.5;
-        ctx.moveTo(gridLeft, y);
-        ctx.lineTo(gridRight, y);
-      }
-      ctx.stroke();
-    }
-
-    const pad = scale >= 4 ? 1 : 0;
-    ctx.fillStyle = ALIVE_COLOR;
-    ctx.beginPath();
-    for (let row = startRow; row < endRow; row++) {
-      for (let col = startCol; col < endCol; col++) {
-        if (g.cells[row * g.width + col] === 1) {
-          const x = (col - offsetX) * scale;
-          const y = (row - offsetY) * scale;
-          ctx.rect(x + pad, y + pad, scale - pad, scale - pad);
-        }
-      }
-    }
-    ctx.fill();
+    onDrawRef.current(
+      gridRef.current,
+      cameraRef.current,
+      canvas.width,
+      canvas.height,
+    );
   }, []);
 
   const fitToCanvas = useCallback(() => {
     const scale = window.innerWidth >= 1024 ? SCALE_DESKTOP : SCALE_MOBILE;
     cameraRef.current = { scale, offsetX: 0, offsetY: 0 };
+  }, []);
+
+  // Transfer canvas to worker once on mount — must run before ResizeObserver fires
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const offscreen = canvas.transferControlToOffscreen();
+    onCanvasMountRef.current(offscreen);
   }, []);
 
   // Resize canvas to fill container, fit grid on first paint
@@ -126,7 +94,7 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
     return () => ro.disconnect();
   }, [draw, fitToCanvas]);
 
-  // Redraw when grid changes; re-fit when grid size changes
+  // Redraw when grid changes (paused only — worker draws during simulation)
   const prevSizeRef = useRef({ w: grid.width, h: grid.height });
   useEffect(() => {
     const prev = prevSizeRef.current;
@@ -134,8 +102,13 @@ export function GameCanvas({ grid, isRunning, onCellToggle }: Props) {
       fittedRef.current = false;
       prevSizeRef.current = { w: grid.width, h: grid.height };
     }
-    draw();
+    if (!isRunningRef.current) draw();
   }, [grid, draw]);
+
+  // Redraw once when simulation stops so the last frame is crisp
+  useEffect(() => {
+    if (!isRunning) draw();
+  }, [isRunning, draw]);
 
   // Wheel zoom centred on cursor
   useEffect(() => {
