@@ -1,5 +1,13 @@
 # START HERE — Reviewer quick-start
 
+## Deployed app
+
+**`<vercel-url>` — fill in after first deploy**
+
+> Note: the live URL hosts the Next.js frontend only. The NestJS save/load API (Epic 7 stretch tier) requires a separate server process and is not included in the Vercel deployment. All MVP features (grid, simulation, controls, pattern library, rule sets) work without it.
+>
+> See [docs/implementation-artifacts/vercel-deploy.md](docs/implementation-artifacts/vercel-deploy.md) for deployment details.
+
 ## Prerequisites
 
 - Node.js 20+
