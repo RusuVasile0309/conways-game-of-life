@@ -55,7 +55,7 @@ export function PatternSelector({ onSelect, disabled = false }: PatternSelectorP
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Load a named pattern"
-        className="flex items-center gap-2 rounded border px-3 py-2 bg-white border-neutral-300
+        className="flex items-center gap-2 h-10 rounded border px-3 bg-white border-neutral-300
           text-cyan-700 hover:border-cyan-600 focus-visible:outline-none
           focus-visible:ring-2 focus-visible:ring-cyan-600
           disabled:opacity-40 disabled:cursor-not-allowed transition-colors"

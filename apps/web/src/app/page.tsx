@@ -1,13 +1,21 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { createGrid, toggleCell, step, randomizeGrid, placePattern, setCell } from '@conways-game-of-life/sim';
-import type { Grid } from '@conways-game-of-life/types';
+import {
+  createGrid,
+  toggleCell,
+  randomizeGrid,
+  placePattern,
+  setCell,
+  conwayRules,
+} from '@conways-game-of-life/sim';
+import type { Grid, RuleSet } from '@conways-game-of-life/types';
 import type { SavedPattern } from '@conways-game-of-life/types';
 import type { NamedPattern } from '@conways-game-of-life/sim';
 import { GameCanvas } from './components/GameCanvas';
 import { SizeForm } from './components/SizeForm';
 import { PatternSelector } from './components/PatternSelector';
+import { RuleSetSelector } from './components/RuleSetSelector';
 import { SaveLoadPanel } from './components/SaveLoadPanel';
 import { SavePatternModal } from './components/SavePatternModal';
 import { LoadPatternModal } from './components/LoadPatternModal';
@@ -19,9 +27,11 @@ import { TurtleIcon } from './svgs/Turtle';
 import { RabbitIcon } from './svgs/Rabbit';
 import { SaveIcon } from './svgs/SaveIcon';
 import { LoadIcon } from './svgs/LoadIcon';
+import { XIcon } from './svgs/XIcon';
+import { DiceIcon } from './svgs/DiceIcon';
 import './game.css';
 
-const DEFAULT_WIDTH = 40;
+const DEFAULT_WIDTH = 30;
 const DEFAULT_HEIGHT = 30;
 const DEFAULT_GEN_PER_SEC = 10;
 
@@ -34,6 +44,8 @@ export default function Page() {
   const [genPerSec, setGenPerSec] = useState(DEFAULT_GEN_PER_SEC);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
+  const [ruleSet, setRuleSet] = useState<RuleSet>(conwayRules);
+  const ruleSetRef = useRef<RuleSet>(conwayRules);
   const genPerSecRef = useRef(DEFAULT_GEN_PER_SEC);
 
   function handleSpeedChange(value: number) {
@@ -41,8 +53,13 @@ export default function Page() {
     setGenPerSec(value);
   }
 
+  function handleRuleSetChange(rs: RuleSet) {
+    ruleSetRef.current = rs;
+    setRuleSet(rs);
+  }
+
   const onTick = useCallback(() => {
-    setGrid((g) => step(g));
+    setGrid((g) => ruleSetRef.current.step(g));
     setGeneration((n) => n + 1);
   }, []);
 
@@ -66,7 +83,7 @@ export default function Page() {
 
   function handleStep() {
     if (isRunning) return;
-    setGrid((g) => step(g));
+    setGrid((g) => ruleSetRef.current.step(g));
     setGeneration((n) => n + 1);
   }
 
@@ -107,7 +124,7 @@ export default function Page() {
     'rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600';
   const btnIcon = `${btnBase} w-9 h-9 flex items-center justify-center`;
   const btnPrimary = `${btnIcon} bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 disabled:opacity-40 disabled:cursor-not-allowed`;
-  const btnSecondary = `${btnBase} px-3 py-2 bg-white border-neutral-300 text-cyan-700 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
+  const btnSecondary = `${btnBase} h-10 px-3 flex items-center justify-center text-cyan-700 bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
   const btnSecondaryIcon = `${btnIcon} bg-white border-neutral-300 hover:border-cyan-600 disabled:opacity-40 disabled:cursor-not-allowed`;
 
   return (
@@ -152,7 +169,11 @@ export default function Page() {
 
       <div className="game-content flex-1 flex flex-col lg:flex-row items-center gap-6 pb-6">
         <div className="game-canvas-wrap border-2 border-cyan-600 rounded-md overflow-hidden shrink-0">
-          <GameCanvas grid={grid} isRunning={isRunning} onCellToggle={handleCellToggle} />
+          <GameCanvas
+            grid={grid}
+            isRunning={isRunning}
+            onCellToggle={handleCellToggle}
+          />
         </div>
 
         <aside className="flex flex-col gap-4 w-full lg:flex-1">
@@ -163,13 +184,36 @@ export default function Page() {
                 <button
                   onClick={() => setIsRunning((r) => !r)}
                   className={btnPrimary}
-                  aria-label={isRunning ? 'Pause simulation' : 'Play simulation'}
+                  aria-label={
+                    isRunning ? 'Pause simulation' : 'Play simulation'
+                  }
                 >
-                  <span style={{ display: 'block', position: 'relative', width: 20, height: 20 }}>
-                    <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 0 : 1, transition: 'opacity 150ms ease' }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      position: 'relative',
+                      width: 20,
+                      height: 20,
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: isRunning ? 0 : 1,
+                        transition: 'opacity 150ms ease',
+                      }}
+                    >
                       <PlayIcon />
                     </span>
-                    <span style={{ position: 'absolute', inset: 0, opacity: isRunning ? 1 : 0, transition: 'opacity 150ms ease' }}>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: isRunning ? 1 : 0,
+                        transition: 'opacity 150ms ease',
+                      }}
+                    >
                       <PauseIcon />
                     </span>
                   </span>
@@ -188,13 +232,20 @@ export default function Page() {
               <div className="flex-1 flex justify-end">
                 <p className="text-sm text-neutral-600">
                   Generation:{' '}
-                  <span className="text-cyan-600 font-mono" data-testid="gen-count">{generation}</span>
+                  <span
+                    className="text-cyan-600 font-mono"
+                    data-testid="gen-count"
+                  >
+                    {generation}
+                  </span>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 w-full">
-              <span className="text-neutral-400"><TurtleIcon /></span>
+              <span className="text-neutral-400">
+                <TurtleIcon />
+              </span>
               <input
                 type="range"
                 min={1}
@@ -204,18 +255,38 @@ export default function Page() {
                 className="flex-1 accent-cyan-600 speed-slider"
                 aria-label="Generations per second"
               />
-              <span className="text-neutral-400"><RabbitIcon /></span>
+              <span className="text-neutral-400">
+                <RabbitIcon />
+              </span>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 justify-center items-center">
-            <button onClick={handleClear} className={btnSecondary} aria-label="Clear grid">
-              Clear
+          <div className="flex flex-wrap gap-1 justify-center items-center">
+            <button
+              onClick={handleClear}
+              className={btnSecondary}
+              aria-label="Clear grid"
+            >
+              <span className="sm:hidden"><XIcon size={18} /></span>
+              <span className="hidden sm:inline">Clear</span>
             </button>
-            <button onClick={handleRandomize} className={btnSecondary} aria-label="Randomize grid">
-              Randomize
+            <button
+              onClick={handleRandomize}
+              className={btnSecondary}
+              aria-label="Randomize grid"
+            >
+              <span className="sm:hidden"><DiceIcon size={18} /></span>
+              <span className="hidden sm:inline">Randomize</span>
             </button>
-            <PatternSelector onSelect={handlePatternSelect} disabled={isRunning} />
+            <PatternSelector
+              onSelect={handlePatternSelect}
+              disabled={isRunning}
+            />
+            <RuleSetSelector
+              value={ruleSet}
+              onChange={handleRuleSetChange}
+              disabled={isRunning}
+            />
           </div>
 
           <SizeForm
