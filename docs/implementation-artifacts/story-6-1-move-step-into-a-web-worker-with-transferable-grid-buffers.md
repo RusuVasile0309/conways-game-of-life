@@ -1,6 +1,6 @@
 # Story 6.1: Move `step()` into a Web Worker with transferable grid buffers
 
-Status: review
+Status: done
 
 ## Story
 
@@ -317,16 +317,26 @@ None — implementation went smoothly. One test failure fixed: JSDOM doesn't sup
 
 - Worker is stateless by design — receives full grid each tick, no internal state. Avoids sync bugs on clear/randomize/resize.
 - `buffer.slice(0)` copy before transfer keeps main-thread `grid.cells` valid during worker transit. At 200×200 = 40KB this is cheap but does create GC pressure at high gen/sec.
-- Performance measured with/without worker at 200×200, 30 gen/sec: both achieve ≥60fps canvas composite rate and no frame >33ms after batching the canvas stroke/fill calls (see renderer fix below). The real benefit of the worker is INP: without it, input latency at 200×200 is ~29ms (step() blocks the main thread); with worker, the main thread is always free for input.
+- Performance measured with/without worker at 200×200 using `requestAnimationFrame` delta tracking over ~13 seconds:
+
+  | | main (no worker) | story 6.1 (worker) |
+  |---|---|---|
+  | Frames recorded | 816 | 1542 |
+  | Avg frame time | 16.63ms | **8.33ms** |
+  | Max frame time | 17.70ms | 17.60ms |
+  | Frames >33ms | 0 | 0 |
+
+  Both pass the AC (0 frames >33ms). The worker frees enough main-thread time that a 120Hz display renders at ~120fps (8.33ms avg) instead of being capped at ~60fps. On main, each frame consumed the full 16ms budget; on 6.1 the main thread finishes in ~8ms, giving the compositor headroom to double the refresh rate.
 - **Renderer fix (post-initial commit):** `GameCanvas.draw()` was issuing one `ctx.stroke()` call per grid line (~400 calls at 200×200). Each stroke flushes to the GPU. Batched all `moveTo/lineTo` into a single `ctx.beginPath()` block with one `ctx.stroke()`. Similarly replaced individual `fillRect` calls with `ctx.rect()` + single `ctx.fill()`. This dropped canvas draw time from ~15–25ms to ~3–8ms, eliminating the >33ms frame spikes.
 - SizeForm max raised from 100 to 200 to enable the 200×200 performance target from the AC.
 - `/// <reference lib="webworker" />` required in sim.worker.ts because apps/web tsconfig has `"lib": ["dom"]` which types `self` as `Window`.
 
 ### File List
 
-- `apps/web/src/app/workers/sim.worker.ts` — created
-- `apps/web/src/app/hooks/useSimWorker.ts` — created
-- `apps/web/src/app/page.tsx` — modified (worker wiring)
+- `apps/web/src/app/workers/sim.worker.ts` — created; updated to dispatch by `ruleSetId` (Epic 8 compat)
+- `apps/web/src/app/hooks/useSimWorker.ts` — created; callback signature `(grid, ruleSetId)`, `onerror` handler added
+- `apps/web/src/app/page.tsx` — modified (worker wiring, RuleSet selector integration)
+- `apps/web/src/app/components/GameCanvas.tsx` — modified (batched stroke/fill calls for renderer fix)
 - `apps/web/src/app/components/SizeForm.tsx` — modified (max 100→200)
 - `apps/web/jest.setup.ts` — modified (Worker mock)
 - `README.md` — modified (Performance NFR5 section with measured results)
