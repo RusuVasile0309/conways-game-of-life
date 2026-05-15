@@ -1,9 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+declare global {
+  // eslint-disable-next-line no-var
+  var _prisma: PrismaClient | undefined;
+}
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function createClient(): PrismaClient | null {
+  if (!process.env['DATABASE_URL']) return null;
+  if (global._prisma) return global._prisma;
+  const client = new PrismaClient();
+  if (process.env['NODE_ENV'] !== 'production') global._prisma = client;
+  return client;
+}
 
-if (process.env['NODE_ENV'] !== 'production') {
-  globalForPrisma.prisma = prisma;
+export function getPrisma(): PrismaClient | null {
+  return createClient();
 }

@@ -27,9 +27,11 @@ The save/load pattern feature persists data to PostgreSQL via Prisma. A free [Ne
 1. Copy the env template and fill in your connection string:
 
    ```bash
-   cp .env.example .env
-   # edit .env — set DATABASE_URL to your PostgreSQL connection string
+   cp .env.example apps/web/.env.local
+   # edit apps/web/.env.local — set DATABASE_URL to your PostgreSQL connection string
    ```
+
+   > Next.js loads env files from the app directory (`apps/web/`), not the repo root.
 
 2. Apply the migration to create the `Pattern` table:
 
@@ -48,8 +50,8 @@ The save/load pattern feature persists data to PostgreSQL via Prisma. A free [Ne
 ## Run the app
 
 ```bash
-pnpm nx serve web
-# → http://localhost:4200
+pnpm nx dev web
+# → http://localhost:3000
 ```
 
 ## Run the tests

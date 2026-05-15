@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../lib/prisma';
+import { getPrisma } from '../../../lib/prisma';
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const prisma = getPrisma();
+  if (!prisma) {
+    return NextResponse.json(
+      { error: 'DATABASE_URL is not set — save/load requires a PostgreSQL database' },
+      { status: 503 },
+    );
+  }
   const { id } = await params;
   const row = await prisma.pattern.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });

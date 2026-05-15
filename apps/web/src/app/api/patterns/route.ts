@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '../../lib/prisma';
+import { getPrisma } from '../../lib/prisma';
 import type { Pattern } from '@prisma/client';
 
 const createSchema = z.object({
@@ -21,12 +21,22 @@ function toResponse(row: Pattern) {
   };
 }
 
+const dbNotConfigured = () =>
+  NextResponse.json(
+    { error: 'DATABASE_URL is not set — save/load requires a PostgreSQL database' },
+    { status: 503 },
+  );
+
 export async function GET() {
+  const prisma = getPrisma();
+  if (!prisma) return dbNotConfigured();
   const rows = await prisma.pattern.findMany({ orderBy: { createdAt: 'desc' } });
   return NextResponse.json(rows.map(toResponse));
 }
 
 export async function POST(req: Request) {
+  const prisma = getPrisma();
+  if (!prisma) return dbNotConfigured();
   const body = createSchema.safeParse(await req.json());
   if (!body.success) {
     return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
