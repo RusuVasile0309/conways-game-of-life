@@ -21,3 +21,8 @@ apps/web/next-env.d.ts
 
 # SQLite database (generated at runtime; migrations are committed, binary is not)
 api/data/*.db
+
+# Local environment variables (contain secrets — never commit)
+.env
+.env.local
+.env*.local

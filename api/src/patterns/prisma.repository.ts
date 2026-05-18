@@ -4,7 +4,7 @@ import type { PatternRepository, SavedPattern } from '@conways-game-of-life/type
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
-export class SqlitePatternRepository implements PatternRepository {
+export class PrismaPatternRepository implements PatternRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private toSavedPattern(row: Pattern): SavedPattern {

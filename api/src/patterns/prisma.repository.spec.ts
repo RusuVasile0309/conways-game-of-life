@@ -1,6 +1,6 @@
 import type { Pattern } from '@prisma/client';
 import type { PatternRepository, SavedPattern } from '@conways-game-of-life/types';
-import { SqlitePatternRepository } from './prisma.repository.js';
+import { PrismaPatternRepository } from './prisma.repository.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const makeRow = (overrides: Partial<Pattern> = {}): Pattern => ({
@@ -22,13 +22,13 @@ const makePrisma = () =>
     },
   } as unknown as PrismaService);
 
-describe('SqlitePatternRepository', () => {
+describe('PrismaPatternRepository', () => {
   let repo: PatternRepository;
   let prisma: ReturnType<typeof makePrisma>;
 
   beforeEach(() => {
     prisma = makePrisma();
-    repo = new SqlitePatternRepository(prisma);
+    repo = new PrismaPatternRepository(prisma);
   });
 
   describe('list()', () => {
